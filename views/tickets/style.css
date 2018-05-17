@@ -1,0 +1,163 @@
+@CHARSET "ISO-8859-1";
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+   RESET
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+a img{ border:0;}
+
+/* END RESET */
+
+body{
+	background-color: #FFF;
+	background-image:url('logofondo1.png');
+}
+#wrapper{
+	width:1010px; height:700px;
+	margin: 0 auto; margin-top:10px;
+	font-family:"Trebuchet", sans-serif;
+}
+#back{
+	width:1000px; height:695px;
+	background-color: #FFF;
+	margin-left: 5px; margin-top: 5px;
+	opacity: 0.55; position: absolute; z-index: 1;
+}
+#banner{
+	width:1000px; height:190px;
+	float:left;
+	margin-top:5px; margin-left:5px;
+	position: relative;
+	z-index: 2;
+	border: 1px solid #FA58D0;
+}
+	#logo{
+		width:522px; height:180px;
+		float:left;
+		margin-left: 5px; margin-top:5px;
+ 		background: url('logo.png') no-repeat;
+	}  
+	#slide{
+		width:450px; height:180px;
+		float:right;
+		margin-right: 3px; margin-top:5px;
+  		}
+ 		#txt_slide{
+ 			width:440px; height:170px;
+			float:left;
+			margin-left: 7px; margin-top:5px;
+			background-image:url('slide1.jpg');
+			border-radius: 15px;
+ 		}
+#content{
+	width:1000px; height:465px;
+	float:left;
+	margin-left:5px;
+	position: relative;
+	z-index: 2;
+}
+	#menu{
+			width:200px; height:430px;
+			float:left;
+			margin-top:5px; padding-top: 25px;
+ 			text-align:center;
+ 			border: 1px solid #FA58D0;
+	}
+		.button{
+			width:195px; height:60px;
+			float:left;
+			margin-left:2px; margin-top:10px;
+		}
+			.baloon{
+				width:56px; height:56px;
+				float:left;
+				margin-left:2px; margin-top:2px;
+			}
+			.enlace{
+				width:134px; height:56px;
+				float:right;
+				margin-right:1px; margin-top:2px;
+				text-align: left;
+				vertical-align: middle;
+			}
+				.enlace p{
+					margin-top: 18px;				
+				}
+				.linkenlace{
+					color: #000; 
+					text-decoration: none;
+					font-size: 16pt;
+					font-weight: bold;
+					margin-right: 3px;
+				}
+				.linkenlace:hover{ 
+					color:#DB1171;
+				}
+	#show{
+		width:790px; height:455px;
+		float:right;
+		margin-top:5px;
+		border: 1px solid #FA58D0;	
+	}
+		#loading{
+			width:100px; height:15px;
+			background: url('loading.gif') no-repeat;
+			margin-top: 130px; margin-left: 300px; 
+			padding-top: 50px;
+		}
+#footer{
+	width:1000px; height:32px;
+	padding-top: 5px;
+	float:left;
+	margin-left:5px;
+	text-align:center; font-size:85%;
+	position: relative;
+	z-index: 2;
+	border: 1px solid #FA58D0;
+ }
+ 
+ 

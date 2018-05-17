@@ -1,0 +1,1 @@
+Bienvenido, <?php echo "<b>".$authUser['profile_name']."</b> ";

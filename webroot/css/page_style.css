@@ -1,0 +1,172 @@
+@CHARSET "ISO-8859-1";
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+   RESET
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+a img{ border:0;}
+
+/* END RESET */
+body{
+	background-image:url("../img/fondo.jpg"); 
+	/*background-position: -250px -150px;*/
+	font-family: "Verdana";
+}
+
+#wrapper{
+	width: 950px;
+	height: 650px;
+	border: 2px solid black;
+	margin: 0px auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	background-color: #FFF;
+	opacity:0.9;
+}
+#banner{
+	height: 124px;
+	width: 100%;
+	border-bottom: 2px #3D9E00 solid;
+	height: 130px;
+}
+	#logo{
+		background-image:url("../img/banner.jpg"); 
+		width: 347px; 
+		height: 98px;
+		float:left;
+		margin-left: 150px;
+	}
+	#entrar{
+		border: 1px solid #3D9E00; 
+		margin-top: 5px;
+		margin-right: 5px; 
+		width: 250px; 
+		height: 120px;
+		float:right;
+	}
+		#entrar h2{
+			font-size:120%;
+			text-align: center;
+			padding-bottom: 5px;
+			padding-top: 3px;
+		}
+		#entrar form table{
+			font-size:80%;
+			margin:0px auto;
+		}
+		#UserUsername, #UserPassword{
+			width:120px;
+			margin-bottom: 5px;
+		}
+	#slogan{
+		font-size:150%;
+		font-weight:bolder;
+		width:540px;
+		height:30px;
+		margin-left: 80px;
+		margin-top: 5px;
+		color: #3D9E00;
+		float: left;
+		text-align: center;
+	}
+
+#menu{
+	height: 22px;
+	padding-top: 3px;
+	width: 100%;
+	text-align: center;
+	border-bottom: 1px #3D9E00 solid;
+	background-color: #85EA12;
+}
+	#menu a,a:visited{ 
+		color: #000;
+		text-decoration: none;
+		font-weight: bold;
+		margin-left:5px;
+		margin-right:5px;
+	}
+	#menu a:hover{
+		text-decoration: underline;
+	}
+
+	#hour{
+		height: 20px;
+		width: 180px;
+		float: right;
+		margin-bottom: 1px;
+		text-align: right;
+		font-weight: bold;
+		padding-right: 3px;
+		font-size: 120%;
+	}
+	
+#content{
+	height: 445px;
+	width: 930px;
+	padding: 10px 10px 10px 10px;
+}
+#footer{
+	font-size: 70%;
+	height: 25px;
+	width: 100%;
+	border-top: 2px #3D9E00 solid;
+	text-align: center;
+	background-color: #85EA12;
+}
+
+h2{
+	font-size: 150%;
+	font-weight: bold;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+p{
+	margin-top: 20px;
+	text-align: justify;
+	line-height: 15pt;
+}

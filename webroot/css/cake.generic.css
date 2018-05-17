@@ -1,0 +1,421 @@
+/* SVN FILE: $Id$ */
+/**
+ *
+ * PHP versions 4 and 5
+ *
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @filesource
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.app.webroot.css
+ * @since         CakePHP(tm)
+ * @version       $Revision$
+ * @modifiedby    $LastChangedBy$
+ * @lastmodified  $Date$
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
+ */
+
+* {
+	margin:0;
+	padding:0;
+	
+}
+
+/* General Style Info */
+body {
+	background: #FFF;
+	color: #000;
+	font-family:'lucida grande',verdana,helvetica,arial,sans-serif;
+	font-size:9pt;
+	margin: 0;
+}
+a {
+	color: #18B195;
+	text-decoration:none;	
+	font-weight: bold;
+}
+a:hover {
+	color: #3D9E00;
+	text-decoration: underline;
+}
+a img {
+	border:none;
+}
+h1 {
+	color: #252525;
+	font-weight:bold;
+	font-size: 100%;
+	margin: 0.1em 0;
+}
+h2 {
+	font-weight:bold;
+	font-family:'Gill Sans','lucida grande',helvetica, arial, sans-serif;
+	font-size: 200%;
+	margin-left: 10px;
+	padding-top: 3px;
+	padding-bottom: 5px;
+	color: #255E00;
+}
+h3 {
+	color: #252525;
+	font-weight:bold;
+	font-family:'Gill Sans','lucida grande',helvetica, arial, sans-serif;
+	font-size: 160%;
+	text-decoration: underline;
+	margin-left: 10px;
+	clear:both;
+	padding-bottom: 5px;
+}
+h4 {
+	color: #252525;
+	font-weight:bold;
+	font-weight: normal;
+	padding-top: 0.5em;
+}
+ul, li {
+	margin: 0 12px;
+}
+
+/* Tables */
+table {
+	background: #fff;
+	border:1px solid #ccc;
+	border-right:0;
+	clear: both;
+	color: #333;
+	margin-bottom: 10px;
+	width: 100%;
+	
+}
+th {
+	background: #DBEDD0;
+	border:1px solid #bbb;
+	border-top: 1px solid #fff;
+	border-left: 1px solid #fff;
+	text-align: center;
+    padding: 2px 12px;
+}
+th a {
+	display: block;
+	padding: 1px 1px;
+	text-decoration: none;
+}
+th a:hover {
+	background: #ccc;
+	color: #333;
+	text-decoration: none;
+}
+table tr td {
+	background: #fff;
+	border-right: 1px solid #ccc;
+	padding: 1px;
+	text-align: center;
+	vertical-align: middle;
+}
+table tr.altrow td {
+	background: #DBEDD0;
+}
+td.actions {
+	text-align: center;
+	white-space: nowrap;
+}
+td.actions a {
+	margin: 0px 3px;
+}
+.cake-sql-log table {
+	background: #f4f4f4;
+}
+.cake-sql-log td {
+	padding: 4px 8px;
+	text-align: left;
+}
+
+/* Paging */
+div.paging {
+	background:#fff;
+	color: #ccc;
+	margin-bottom: 2em;
+}
+div.paging div.disabled {
+	color: #ddd;
+	display: inline;
+}
+div.paging span {
+}
+div.paging span.current {
+	color: #000;
+}
+div.paging span a {
+}
+
+/* Forms */
+form {
+	clear: both;
+	margin-right: 3px;
+	padding: 10px;
+	width: 100%;
+}
+fieldset {
+	border: 1px solid #DBEDD0;
+	margin-top: 5px;
+	padding: 5px 2px;
+}
+fieldset legend {
+	background:#fff;
+	color: blue;
+	font-size: 120%;
+	font-weight: bold;
+}
+form div {
+	clear: both;
+	vertical-align: text-top;
+}
+form div.input {
+	color: #444;
+}
+form div.required {
+	color: #333;
+	font-weight: bold;
+}
+form div.submit {
+	border: 0;
+	clear: both;
+	margin-top: 10px;
+	margin-left: 140px;
+}
+label {
+	display: block;
+	padding-right: 8px;
+}
+input, textarea {
+	clear: both;
+	font-family: "frutiger linotype", "lucida grande", "verdana", sans-serif;
+	width: 120px;
+}
+select {
+	clear: both;
+	vertical-align: text-bottom;
+}
+select[multiple=multiple] {
+	width: 100%;
+}
+option {
+	padding: 0 1px;
+}
+input[type=checkbox] {
+	clear: left;
+	float: left;
+	margin: 0px 2px 3px 1px;
+	width: auto;
+}
+input[type=radio] {
+	float:left;
+	width:auto;
+	margin: 0 1px 3px 0;
+}
+div.radio label {
+	margin: 0 0 6px 5px;
+}
+input[type=submit] {
+	display: inline;
+	padding: 2px 3px;
+	width: auto;
+	vertical-align: bottom;
+	
+}
+
+/* Notices and Errors */
+div.message {
+	position: relative;
+	width:90%;
+	color: #900;
+	font-size: 130%;
+	margin: 3px;
+	font-weight: bold;
+	text-align:right;
+}
+@media only screen
+and (min-device-width : 320px)
+and (max-device-width : 768px) {
+/* Layout */
+div.paging {
+	display:none;
+}
+div.message {
+    position: absolute;
+    width: 260px;
+    height:150px;
+    color: #fff;
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    background-color:#459e00;
+    margin-top:140px;
+    margin-left: 20px;
+    z-index:100;
+    padding:20px;
+    border-radius:10px;
+}
+div.error-message {
+	clear: both;
+	color: #900;
+	font-weight: bold;
+}
+p.error {
+	background-color: blue;
+	color: #fff;
+	font-family: Courier, monospace;
+	font-size: 120%;
+	line-height: 140%;
+	padding: 0.8em;
+	margin: 1em 0;
+}
+p.error em {
+	color: #000;
+	font-weight: normal;
+	line-height: 140%;
+}
+.notice {
+	background: #ffcc00;
+	color: #000;
+	display: block;
+	font-family: Courier, monospace;
+	font-size: 120%;
+	line-height: 140%;
+	padding: 0.8em;
+	margin: 1em 0;
+}
+.success {
+	background: green;
+	color: #fff;
+}
+
+/*  Actions  */
+div.actions ul {
+	margin: 0px 0;
+	padding: 0;
+}
+div.actions li {
+	display: inline;
+	list-style-type: none;
+	line-height: 2em;
+	margin: 0 2em 0 0;
+	white-space: nowrap;
+}
+div.actions ul li a {
+	text-decoration: none;
+}
+div.actions ul li a:hover {
+	color: #333;
+	text-decoration: underline;
+}
+
+/* Debugging */
+pre {
+	color: #000;
+	background: #f0f0f0;
+	padding: 1em;
+}
+pre.cake-debug {
+	background: #ffcc00;
+	font-size: 120%;
+	line-height: 140%;
+	margin-top: 1em;
+	overflow: auto;
+	position: relative;
+}
+div.cake-stack-trace {
+	background: #fff;
+	border: 4px dotted #ffcc00;
+	color: #333;
+	margin: 0px;
+	padding: 6px;
+	font-size: 120%;
+	line-height: 140%;
+	overflow: auto;
+	position: relative;
+}
+div.cake-code-dump pre {
+	position: relative;
+	overflow: auto;
+}
+div.cake-stack-trace pre, div.cake-code-dump pre {
+	color: #000;
+	background-color: #F0F0F0;
+	margin: 0px;
+	padding: 1em;
+	overflow: auto;
+}
+div.cake-code-dump pre, div.cake-code-dump pre code {
+	clear: both;
+	font-size: 12px;
+	line-height: 15px;
+	margin: 4px 2px;
+	padding: 4px;
+	overflow: auto;
+}
+div.cake-code-dump span.code-highlight {
+	background-color: #ff0;
+	padding: 4px;
+}
+div.code-coverage-results div.code-line {
+	padding-left:5px;
+	display:block;
+	margin-left:10px;
+}
+div.code-coverage-results div.uncovered span.content {
+	background:#ecc;
+}
+div.code-coverage-results div.covered span.content {
+	background:#cec;
+}
+div.code-coverage-results div.ignored span.content {
+	color:#aaa;
+}
+div.code-coverage-results span.line-num {
+	color:#666;
+	display:block;
+	float:left;
+	width:20px;
+	text-align:right;
+	margin-right:5px;
+}
+div.code-coverage-results span.line-num strong {
+	color:#666;
+}
+div.code-coverage-results div.start {
+	border:1px solid #aaa;
+	border-width:1px 1px 0px 1px;
+	margin-top:30px;
+	padding-top:5px;
+}
+div.code-coverage-results div.end {
+	border:1px solid #aaa;
+	border-width:0px 1px 1px 1px;
+	margin-bottom:30px;
+	padding-bottom:5px;
+}
+div.code-coverage-results div.realstart {
+	margin-top:0px;
+}
+div.code-coverage-results p.note {
+	color:#bbb;
+	padding:5px;
+	margin:5px 0 10px;
+	font-size:10px;
+}
+div.code-coverage-results span.result-bad {
+	color: #a00;
+}
+div.code-coverage-results span.result-ok {
+	color: #fa0;
+}
+div.code-coverage-results span.result-good {
+	color: #0a0;
+}
