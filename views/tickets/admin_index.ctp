@@ -141,8 +141,19 @@ foreach ($tickets as $ticket):
 			<?php 
 			echo $ticket['PayedStatus']['name'];
 			
-			if($ticket['Ticket']['enable'] == 0){
+			if ( $ticket['Ticket']['enable'] == 0 ) {
 				echo "<br /><span style='color:Red; font-weight:bold'>(ANULADO)</span>";
+			}
+
+			if ( $ticket ['Ticket']['payed_status_id'] == 2 
+					&& $ticket['Ticket']['payed_at'] != ''
+				) { 
+				
+				echo "<br /><small>";	
+				echo $dtime->date_from_created($ticket['Ticket']['payed_at']);
+				echo ', ';
+				echo $dtime->hour_from_created($ticket['Ticket']['payed_at']);
+				echo "</small>";
 			}
 			?>
 		</td>

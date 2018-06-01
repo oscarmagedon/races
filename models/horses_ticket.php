@@ -168,17 +168,26 @@ class HorsesTicket extends AppModel {
 		//apuestas WIN AL GANADOR
 		$this->_executePrize(
 							"(units * ". ($winners[1]['win'] / $currency) .")", 
-							array('horse_id' => $winners[1]['horse_id'], 'play_type_id' => 1));
+							array(
+								'horse_id'     => $winners[1]['horse_id'], 
+								'play_type_id' => 1 )
+							);
 							
 		//APUESTAS PLACE AL GANADOR
 		$this->_executePrize(
 							"(units * ". ($winners[1]['place'] / $currency) .")", 
-							array('horse_id' => $winners[1]['horse_id'], 'play_type_id' => 2));
+							array(
+								'horse_id'     => $winners[1]['horse_id'], 
+								'play_type_id' => 2 )
+							);
 		
 		//APUESTAS SHOW AL GANADOR
 		$this->_executePrize(
 							"(units * ". ($winners[1]['show'] / $currency) .")",
-							array('horse_id' => $winners[1]['horse_id'], 'play_type_id' => 3));
+							array(
+								'horse_id'     => $winners[1]['horse_id'], 
+								'play_type_id' => 3 )
+							);
 		
 		
 		//  ---- S  E  G  U  N  D  O    C  A  B  A  L  L  O   -------
@@ -186,7 +195,10 @@ class HorsesTicket extends AppModel {
 		//APUESTAS PLACE AL SEGUNDO
 		$this->_executePrize(
 							"(units * ". ($winners[2]['place'] / $currency) .")",
-							array('horse_id' => $winners[2]['horse_id'], 'play_type_id' => 2));
+							array(
+								'horse_id'     => $winners[2]['horse_id'], 
+								'play_type_id' => 2 )
+							);
 		
 		//APUESTAS SHOW AL SEGUNDO
 		$this->_executePrize(

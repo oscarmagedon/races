@@ -579,7 +579,8 @@ class TicketsController extends AppController
 	}
     
 
-    function admin_salestaq ($since = null, $until = null, $htrackid = null, $raceid = null)
+    function admin_salestaq ( $since = null, $until = null, 
+                                $htrackid = null, $raceid = null)
     {
         $cid     = $this->authUser['center_id'];
         $pid     = $this->authUser['profile_id'];
@@ -1176,7 +1177,12 @@ class TicketsController extends AppController
 			
 			if ( ! empty ( $ticket ) ) {
 				$this->Ticket->updateAll(
-					array('payed_status_id' => 2),
+					array(
+                            'payed_status_id' => 2 ,
+                            'payed_at'        => "'". 
+                                                 date('Y-m-d H:i:s') .
+                                                 "'"
+                    ),
                     array('Ticket.id' => $ticket['Ticket']['id'])
 				);
 				

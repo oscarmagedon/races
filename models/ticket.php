@@ -654,6 +654,8 @@ class Ticket extends AppModel {
         
         //PAYED
         $cond['payed_status_id'] = 2;
+        unset($cond['date(created) BETWEEN ? AND ?']);
+        $cond['date(payed_at) BETWEEN ? AND ?'] = array($since,$until);
         $payed    = $this->find('first',array(
                             'conditions' => $cond,
                             'fields'     => array('count(*) AS co','sum(prize) AS pr')
