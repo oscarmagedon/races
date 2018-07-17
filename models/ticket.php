@@ -919,7 +919,14 @@ class Ticket extends AppModel {
                                             " Ganador. ID:".$tk['Ticket']['id']));
             unset($account->id);
             $this->updateAll(
-                array('payed_status_id' => 2),
+                //array('payed_status_id' => 2),
+                array(
+                    'payed_status_id' => 2 ,
+                    'payed_at'        => "'". 
+                                         date('Y-m-d H:i:s') .
+                                         "'"
+                    ) 
+               	,
                 array('Ticket.id'       => $tk['Ticket']['id'] ) );
         }
     }

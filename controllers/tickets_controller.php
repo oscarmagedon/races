@@ -143,12 +143,11 @@ class TicketsController extends AppController
             $until = date('Y-m-d');
         }
         
-        
         $totals    = $this->Ticket->getTotalSales($since,$until,$cid,null,$raceid);
         $profSales = $this->Ticket->getSalesProfiles($since,$until,$cid,$raceid);
         $profiles  = $this->Ticket->Profile->getPlayers($cid);
  		$htracks   = $this->Ticket->Race->getHtracksByRange($cid, $since, $until);
-        
+
         $races = array();
         
         if ( $since == $until && $htrackid != null) {
