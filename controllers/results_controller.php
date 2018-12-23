@@ -7,8 +7,10 @@ class ResultsController extends AppController {
 	function beforeFilter(){
 		parent::beforeFilter();	
         
-        $this->Authed->allow(array("checkfromservice",
-            "checkretires","checksrvtime",'closebovada'));
+        $this->Authed->allow(array(
+            "checkfromservice","checkretires","checksrvtime",
+            'readservice',
+            'closebovada','closebovadanew'));
 	}
 	
 	function isAuthorized(){
@@ -381,10 +383,13 @@ class ResultsController extends AppController {
             $htrack   = $next['Hipodrome']['bovada'];
             $htracalt = $next['Hipodrome']['bovalt'];
             $numRace  = $next['Race']['number'];            
+            
             $urlCheck = "https://horses.bovada.lv/services/sports/" .
                         "event/lookup/B/$htrack/race$numRace";
+        
             $urlChkAlt = "https://horses.bovada.lv/services/sports/" .
                         "event/lookup/B/$htracalt/race$numRace";
+
             echo $urlCheck;
             echo "<br> -- <br>";
             $dataStr  = file_get_contents($urlCheck);
@@ -395,6 +400,9 @@ class ResultsController extends AppController {
             }
             
             $data     = json_decode($dataStr, true);
+            
+            pr($data);
+
             echo "STATUS:: " . $data['status'] . "<br>";
             //pr($data); die();
             $statSrv  = $data['status'];
@@ -413,6 +421,89 @@ class ResultsController extends AppController {
         //die("From Nexts!");
         die(json_encode(array('closed' => $closed)));
     }
+
+
+
+    /** B O V A D A    P U B L I C    S E R V.
+     */
+    function closebovadanew()
+    {
+        $operInst  = ClassRegistry::init('Operation');
+        $closed    = 0;
+        $nextRaces = $this->Result->Race->find('all',array(
+                        'conditions' => array(
+                                            'center_id'          => 1,
+                                            'race_date'          => date('Y-m-d'),
+                                            'Race.enable'        => 1,
+                                            'ended'              => 0,
+                                            'Hipodrome.national' => 0
+                                        ),
+                        'fields'     => array(
+                                            'Race.id', 'number', 'local_time',
+                                            'Hipodrome.id','Hipodrome.bovada',
+                                            'Hipodrome.bovalt','Hipodrome.name'
+                                        ),
+                        'order'      => array('local_time' => 'ASC'),
+                        'limit'      => 5
+                    ));
+        
+        //echo 'NEWBOV!!';
+        //pr($nextRaces);
+        
+        foreach ($nextRaces as $next) {
+            
+            $htrack   = $next['Hipodrome']['bovada'];
+            $htracalt = $next['Hipodrome']['bovalt'];
+            $numRace  = $next['Race']['number'];            
+            
+            $urlCheck = "https://horses.bovada.lv/services/sports/" .
+                        "event/v2/events/B/description/horse-racing/$htrack";
+                
+            //echo $urlCheck .' to '. $next['Hipodrome']['bovada'];
+            echo "<br> -- <br>";
+                        
+            $dataStr  = file_get_contents($urlCheck);
+            
+            $data     = json_decode($dataStr, true);
+            
+            //echo count ($data[0]['events']);
+            //pr($data[0]['events']);
+
+            $notFound = true;
+
+
+            foreach ( $data[0]['events'] as $raceEvent ) {
+                
+                if ( $raceEvent['details']['raceNumber'] == $numRace ) {
+                    $notFound = false ;
+                }                              
+
+            }
+
+            if ( $notFound == true ) {
+
+                $this->_closeRaceSrv($next['Race']['id']);
+                //operation line 
+                $operInst->ins_op(4,1,'SRV-BOVADA-AUTNEW',
+                    '', $next['Race']['number']. '-' . $htrack);
+                unset($operInst->id);
+                $closed ++;
+            }
+
+
+        }
+
+        //die();
+        
+        //pr($raceCloseIds);
+        //die("From Nexts!");
+        die(json_encode(array('closed' => $closed)));
+    }
+
+
+
+
+
     
     //autom Results from TVG (acomodar el get nicks)
     function checkfromservice()
@@ -482,6 +573,27 @@ class ResultsController extends AppController {
         pr($saveRaces);
         die();
         //$this->set(compact('nextNicks'));
+    }
+
+    function readservice($nickTvg = '', $raceNum = 0)
+    {
+        if ($nickTvg == ''){
+            echo 'Please write a nick';
+        } else {
+
+            if ($raceNum == 0 ){
+                echo 'Please write a number';
+            } else {
+                $resultObj  = $this->Result->getResultsService($nickTvg, $raceNum, 0);
+                //echo "<br>--<br>";
+                //pr($resultObj);
+                echo json_encode($resultObj);
+            }
+
+        }
+
+        die();
+        
     }
     
     //SERVICIO RETIRADOS DESDE TVG

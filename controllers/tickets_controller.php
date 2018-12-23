@@ -18,7 +18,8 @@ class TicketsController extends AppController
 		$ret = true;
 		
 		$actions_adm = array(
-			"admin_index","admin_sales","admin_salesnew","admin_follow",
+			"admin_index","admin_sales","admin_salesnew",
+            "admin_follow","admin_fwraceprof",
             "admin_newfollow",'admin_followraces','admin_followhorses',
             "admin_horses_details",
             "admin_anull","admin_create_proof","admin_onlinew","admin_payonline"
@@ -161,6 +162,147 @@ class TicketsController extends AppController
         
         $this->set(compact('since','until','totals','profSales','profiles',
             'htracks','htrackid','races','raceid'));
+    }
+
+    function admin_follow ( $date = null , $htrackid = 0, $raceid = 0 ) 
+    {
+        if ( $date == null ) $date = date('Y-m-d');
+
+        //echo $date;
+        //getHorsetracksByDay($date, $centerId, $nationals = 0, 
+        //$allRaces = false, $counter = false)
+        //Only nationals
+        $htracks = $this->Ticket->Race->getHorsetracksByDay(
+                                            $date , 
+                                            $this->authUser['center_id'] ,
+                                            1 , //nationals
+                                            true //included ended
+                                            ) ;
+
+        $races = [] ;
+
+        //pr($htracks);
+
+        if ( $htrackid != 0 ) {
+
+            $races  = $this->Ticket->Race->find('list', [
+                            'conditions' => [
+                                            'center_id'    => $this->authUser['center_id'] , 
+                                            'hipodrome_id' => $htrackid,
+                                            'race_date'    => $date , 
+
+                                        ], 'fields'=>'number' ] ) ; 
+        }
+
+        $profs = $this->Ticket->Profile->find('all',array(
+                        'conditions' => array(
+                            'center_id'    => $this->authUser['center_id'],
+                            'User.role_id' => array(3,4)),
+                        'fields' => array('Profile.name','Profile.id')
+                    ));
+        
+        foreach($profs as $pro){
+            $profiles[$pro['Profile']['id']] = $pro['Profile']['name'];
+        }
+
+        //pr($profiles);
+        //die();
+        $this->set(compact('date','htrackid','raceid','htracks','races','profiles'));
+    }
+
+    function admin_fwraceprof ( $raceid , $profileid = 0 )
+    {       
+        $config  = ClassRegistry::init('Config');
+
+        $unitNac = $config->get_unit_value($this->authUser['center_id']);
+        //echo  'race id: ' . $raceid ;
+        //echo  'profile id: ' . $profileid ;
+        
+        $horseModel = ClassRegistry::init('Horse');
+
+        $horsesRace = $horseModel->find('list',[
+                            'conditions' => ['race_id'=>$raceid],
+                            'recursive'  => 1
+                        ]);
+        
+        $this->Ticket->HorsesTicket->bindModel([
+                        'belongsTo'=>[
+                            'Ticket'
+                    ]]);
+        
+        $byTicket = $this->Ticket->HorsesTicket->find('all', [
+                            'conditions' => [
+                                    'horse_id'=> array_keys($horsesRace),
+                            ],
+                            'order'      => ['ticket_id','horse_id']
+                        ] ) ;
+
+        //pr($sales);
+        $horseSales = [];
+
+        foreach ( $byTicket as $horseBet ) {
+
+            //if ( $profileid != 0 ) {
+
+
+                if ( 
+                    ($profileid != 0  && $horseBet['Ticket']['profile_id'] == $profileid )
+                    ||
+                    $profileid == 0
+                ) {
+
+                    if ( isset ($horseSales[$horseBet['HorsesTicket']['horse_id']]) ) {
+                    
+                        $horseSales[$horseBet['HorsesTicket']['horse_id']]['tickets'] ++;
+                        
+                        $horseSales[$horseBet['HorsesTicket']['horse_id']]['units'] = 
+                            $horseSales[$horseBet['HorsesTicket']['horse_id']]['units'] + 
+                            $horseBet['HorsesTicket']['units'];
+
+                        $horseSales[$horseBet['HorsesTicket']['horse_id']]['prize'] = 
+                            $horseSales[$horseBet['HorsesTicket']['horse_id']]['prize'] + 
+                            $horseBet['HorsesTicket']['prize'];
+
+                        $horseSales[$horseBet['HorsesTicket']['horse_id']]['unibs'] = 
+                            $horseSales[$horseBet['HorsesTicket']['horse_id']]['unibs'] + 
+                            ($horseBet['HorsesTicket']['units'] * $unitNac );
+
+                        $horseSales[$horseBet['HorsesTicket']['horse_id']]['pribs'] = 
+                            $horseSales[$horseBet['HorsesTicket']['horse_id']]['pribs'] + 
+                            ($horseBet['HorsesTicket']['prize'] * $unitNac );
+
+                    } else {
+
+                        $horseSales[$horseBet['HorsesTicket']['horse_id']] = [
+                            'tickets' => 1, 
+                            'horse'   => $horsesRace[$horseBet['HorsesTicket']['horse_id']],
+                            'units'   => $horseBet['HorsesTicket']['units'],
+                            'prize'   => $horseBet['HorsesTicket']['prize'],
+                            'unibs'   => ($horseBet['HorsesTicket']['units'] * $unitNac ) , 
+                            'pribs'   => ($horseBet['HorsesTicket']['prize'] * $unitNac ) 
+                        ];
+                        
+                    }
+
+            //    }
+
+            }
+
+
+
+
+
+            
+            
+        }
+
+        //pr($horseSales);
+        //pr($horsesRace);
+        //die();
+        
+        $this->set(compact('horseSales'));
+
+        $this->layout = null;
     }
     
     function admin_newfollow($date = null, $htkid = null, $race = null)

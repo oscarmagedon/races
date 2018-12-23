@@ -244,23 +244,47 @@ class Result extends AppModel {
     function getResultsService($brisCode,$race,$fullJson)
     {
         $dataRes  = $this->_getResultServiceNick($brisCode);
+
         $results  = array(
+                        'Headers' => array(),
                         'Horses'  => array(),
                         'Exotics' => array(),
                         'Retired' => array(),
-                        'Status'  => 'NO'
+                        'Status'  => 'NO',
+                        'URL'     => $dataRes['URL']
                     );
-        
+
         if ($fullJson == 1) {
-            echo $urlCheck;
-            pr($jsondata); die();  
+            //echo $urlCheck;
+            //pr($jsondata); die();  
         }
         
         //pr($dataRes); die();
         foreach ($dataRes['Races'] as $dk => $data) {
             $raceNum = $data['Number'];
             if ($raceNum == $race) {
-                $results['Status'] = $data['Status'];
+                
+                // I want to know all the first level Headers
+                foreach ($data as $headKey => $levelTwo) {
+                    $results['Headers'][] = $headKey; 
+                }
+                // I want to know all the first level Headers
+
+                //Late changes
+                //$results['LateChanges'] = $data['LateChanges'];
+                //betting interests you can count the runners in each horse
+                $results['RunnerByNumber'] = [];
+
+                foreach ($data['BettingInterests'] as $betInt) {
+                    $results['RunnerByNumber'][$betInt['Number']]['count'] = count($betInt['Runners']);
+                    if (count($betInt['Runners']) > 1) {
+                        $results['RunnerByNumber'][$betInt['Number']]['Runners'] = $betInt['Runners'];
+                    }
+                }
+
+                $results['Status']  = $data['Status'];
+                $results['Runners'] = $data['Results']['Runners'];
+                
                 if ($data['Status'] == 'RO') {
                     $results['Horses']  = $this->_getFromRunners($data['Results']['Runners']);
                     $results['Exotics'] = $this->_getPayOffs($data['Results']['Payoffs']);
@@ -371,6 +395,14 @@ class Result extends AppModel {
     
     //		              U  T  I  L  S    ------------->>>>>
 	
+    /*
+    examples:: 
+
+    https://www.tvg.com/ajax/races/track/PHI/performance/Day/get/collection
+
+    *** Pay attention to lateChanges Index, it contains the coupleType Horse info
+    
+    */
     function _getResultServiceNick($brisCode)
     {
         $urlOne   = "https://www.tvg.com/ajax/races/track/";
@@ -396,9 +428,8 @@ class Result extends AppModel {
             $dataRes  = json_decode($jsondata, true);
         }
         
-        
-        echo $urlCheck;
-        
+        $dataRes['URL'] = $urlCheck;
+        //echo $urlCheck;
         //pr($dataRes);
         
         return $dataRes;

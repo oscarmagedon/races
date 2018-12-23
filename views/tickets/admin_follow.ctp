@@ -1,156 +1,122 @@
-<script type="text/javascript">
-var load_img = '<?php echo $html->image("loading_small.gif",array("alt"=>"Esperando..."))?>';
-var load_races = '<?php echo $html->url(array("controller"=>"races","action"=>"list_ajax"))?>';
-var dat = '<?php echo $date?>';
-var filt_url = '<?php echo $html->url(array("action"=>"follow","/")) ?>'
 
-$(function(){
-	$("#chngdat").click(function(){
-		$("#date").show();
-		$(this).hide();
-		$("#date_part").hide();
-		return false;
-		
-	});
-
-	$("#date").attr('readonly',true).datepicker().hide().change(function(){
-		var date = $(this).val();					
-		location = filt_url + "/" + date;	
-	});
-
-	$(".hipodrome").change(function(){
-		var hip = $(this).attr('value');
-		$("#race_id").html(load_img);
-		$("#race_id").load(load_races + "/" + hip + "/" + dat);
-	});
-	
-});
-</script>
-<style>
-h2,h3{
-	padding-top:5px;
-}
-</style>
-<div class="tickets">
-	<h2>
-		Seguimiento del dia 
-		<span id='date_part'>
-			<?php 
-			echo $dtime->date_spa_mon_abr($date);
-			if($hip_name != "") echo " de $hip_name" 
-			?>
-		</span>
-		<span style='font-size:60%'>
-			<a href="#" id="chngdat">Cambiar fecha</a>
-		</span>
-		<?php 
-		echo $form->input('date',
-			array('value'=>$date,'label'=>false,'style'=>'width:120px','div'=>false))
-		?>
-		
-	</h2>
-	<table style="width: 80%">
-		<tr>
-			<th>Totales: </th>
-			<td>
-				<?php echo number_format($values['tickets'],0) ?> Tickets
-			</td>
-			<td>
-				<?php echo number_format($values['unidades'],0) ?> Unidades
-				(Bs. <?php echo number_format($values['unidades_bs'],0) ?>)
-			</td>
-			<td>
-				<?php echo number_format($values['premios'],2) ?> En Premios
-				(Bs. <?php echo number_format($values['premios_bs'],2) ?>)
-			</td>
-			<td>
-				<?php echo number_format($values['utilidad'],2) ?> En Utilidad
-				(Bs. <?php echo number_format($values['utilidad_bs'],2) ?>)
-			</td>
-		</tr>
-	</table>
-	<h3>Detalles</h3>
 	<?php 
-	//pr($for_details); pr($alerts);
-	if($hipodrome_id != "")
-		echo $html->link("<- Volver a Hipodromos",array('action'=>'follow',$date));
-	
+	//echo $date;
+	//pr($profiles);
+	//pr($htracks);
 	?>
-	<table border="1">
-		<tr>
-			<th><?php echo $to_show ?></th>
-			<?php 
-			foreach($profiles as $p){
-				echo "<th>$p</th>";
-			}
-			?>
-		</tr>
-		<?php	
-		$i = 0;
-		foreach($for_details as $title => $dets){
-		?>
-		<tr>
-			<td style="vertical-align:middle">
-			<?php
-			if($hipodrome_id == "")
-				echo $html->link($title,array('action'=>'follow',$date,$dets['hip_id']));
-			else{
-				echo "<b>$title</b><br />";
-				echo $html->link("Ver Alertas",array('controller'=>'alerts','action'=>'index',$dets['race_id']));			
-			}
-			?>
-			</td>
-			<?php 
-			foreach($profiles as $pk => $pv){
-				$tickets = 0;
-				$ventas = 0;
-				$ventas_bs = 0; 
-				$premios = 0;
-				$premios_bs = 0;
-				$utilidad = 0;
-				$utilidad_bs = 0;
-	
-				if(!empty($dets[$pk])){
-					$tickets = $dets[$pk]['co'];
-					$ventas = $dets[$pk]['un'];
-					$ventas_bs = $ventas * $money;
-					$premios = $dets[$pk]['pr'];
-					$premios_bs = $premios * $money;
-					$utilidad = $ventas - $premios;
-					$utilidad_bs = $utilidad * $money;
-				}
-					
-			?>
-				<td>
-					<table cellspacing="0" cellpadding="0" style="width:100%; font-size:70%; margin-bottom: 0px">
-						<tr>
-							<th><?php echo number_format($tickets,0)." Tickets" ?></th>
-							<th>Unds</th><th>Bs.</th>
-						</tr>
-						<tr>
-							<td>Ventas</td>
-							<td><?php echo number_format($ventas,2) ?></td>
-							<td><?php echo number_format($ventas_bs,2) ?></td>
-						</tr>
-						<tr>
-							<td>Premios</td>
-							<td><?php echo number_format($premios,2) ?></td>
-							<td><?php echo number_format($premios_bs,2) ?></td>
-						</tr>
-						<tr>
-							<td>Utilidad</td>
-							<td><?php echo number_format($utilidad,2) ?></td>
-							<td><?php echo number_format($utilidad_bs,2) ?></td>
-						</tr>
-					</table>
-				</td>
-			<?php 
-			}
-			?>
-		</tr>
-		<?php 
-			$i ++;
+	<style type="text/css">
+		.profile-box {
+			border: 1px solid #000; 
+			max-width: 380px; 
+			float: left; 
+			margin: 1rem;
+			padding: 0.5rem;
 		}
-		?>
+		.profile-follow {
+			margin: 0.5rem; 
+			background-color: #DDD
+		}
+	</style>
+
+	<table style="width:auto;">
+		
+		<tr>
+			<td>
+				<?php 
+				echo $form->input('date',array(
+					'value'=>$date,'label'=>"Fecha",
+					'style'=>'width:90px','class'=>'input filter-field')) ?>
+			</td>
+			<td>
+				<?php 
+				echo $form->input('htracks',array(
+						'value'=>$htrackid,'label'=>"Hipodromo",
+						'options'=>$htracks,'empty'=>array(0=>'Sel...'),
+						'class' => 'input filter-field')) ?>
+			</td>
+			<td>
+				<?php 
+				echo $form->input('races',array(
+							'value'=>$raceid,'label'=>"Carrera",
+							'options'=>$races,'empty'=>array(0=>'Sel...'),
+						'class' => 'input filter-field')) ?>
+			</td>
+
+		</tr>
+	
 	</table>
-</div>
+
+	<div class="profile-box" style="width: 500px;">
+			
+		<a href="#" class="follow-races" data-raceid="<?php 
+		  echo $raceid 
+		  ?>" data-profileid="0">
+			TOTALS
+		</a>
+
+		<div class="profile-follow">
+			- select race
+		</div>
+
+	</div>
+
+	<?php 
+	foreach ($profiles as $pid => $pname) :
+		?>
+		<div class="profile-box">
+			
+			<a href="#" class="follow-races" data-raceid="<?php 
+			  echo $raceid 
+			  ?>" data-profileid="<?php 
+			  echo $pid 
+			  ?>">
+				<?php echo $pname ?>
+			</a>
+
+			<div class="profile-follow">
+				- select race
+			</div>
+
+
+		</div>
+		<?php 
+	
+	endforeach;
+	?>
+
+
+	<script type="text/javascript">
+		var load_img = 'Cargando... <?php echo $html->image("loading_small.gif",array("alt"=>"Esperando..."))?>',
+	        url_filter = '<?php echo $html->url(array("action"=>"follow"))?>',
+	        url_details = '<?php echo $html->url(array("action"=>"fwraceprof"))?>';
+
+		$(function(){
+		
+			$("#date").attr('readonly',true).datepicker({dateFormat:"yy-mm-dd"});
+		
+			$('.filter-field').change( function () {
+				
+				location = url_filter + '/' + $('#date').val() + '/' + 
+									$('#htracks').val() + '/' + $('#races').val() ;
+			} ) ;	
+
+
+			$('.follow-races').click( function () {
+
+				$btnProf   = $(this),
+				$boxProf   = $btnProf.parent().find('.profile-follow') ,
+				$profileid = $btnProf.data('profileid') ,
+				$raceid    = $btnProf.data('raceid') , 
+				$urlFoll   = url_details + '/' + $raceid + '/' + $profileid;
+				
+				$boxProf.html(load_img);
+				
+				$boxProf.load($urlFoll);
+
+				return false;
+			} ) ;
+		
+		} ) ;
+
+	</script>
+
