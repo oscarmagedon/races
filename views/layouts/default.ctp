@@ -1,7 +1,12 @@
 <!DOCTYPE html>		
 	<head>
         <meta charset="UTF-8">
-        <title>..:: TWI Horses::..</title>
+        <title>
+            <?php 
+            echo $title_for_layout;
+            ?>
+            - TWI Horses::..
+        </title>
 		<link rel="shortcut icon" href="<?php echo $html->url('/favicon.ico') ?>" type="image/x-icon">
 		<?php 
 		echo $html->css(array('cake.generic','jquery-ui-1.8.16.custom',

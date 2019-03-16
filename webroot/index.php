@@ -55,11 +55,11 @@
  *
  */
 	if (!defined('CAKE_CORE_INCLUDE_PATH')) {
-		//*/
+		/*/
         define('CAKE_CORE_INCLUDE_PATH', '/home/florencioltcp/public_html/libs/php/cakephp-1.2');
         /*/
-        //define('CAKE_CORE_INCLUDE_PATH', '/opt/lampp/htdocs/cakephp-1.2');
-        define('CAKE_CORE_INCLUDE_PATH', ROOT);
+        define('CAKE_CORE_INCLUDE_PATH', '/var/www/html/libs/cakephp-1.2.12');
+        //define('CAKE_CORE_INCLUDE_PATH', ROOT);
         //*/
 	}
 

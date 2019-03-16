@@ -37,7 +37,8 @@ class RacesController extends AppController {
                         );
 		
 		$actions_onl = array(
-                            "admin_view","admin_list_ajax","admin_data_pick"
+                            "admin_view","admin_viewnew",
+                            "admin_list_ajax","admin_data_pick"
                         );
 		
 		if($this->isRoot() && in_array($this->action, $actions_root)){
@@ -418,6 +419,46 @@ class RacesController extends AppController {
         
 	}
 	
+    function admin_viewnew($date = null, $htrackid = 0){
+        
+        if($date == null)
+            $date = date('Y-m-d');
+        
+        $cond['race_date'] = $date;
+        $cond['center_id'] = 1; //$this->authUser['center_id'];
+        if($htrackid != 0){
+            $cond['hipodrome_id'] = $htrackid;
+        }
+        
+        $racesId  = $this->Race->find('list',array('fields'=>'id','conditions'=>$cond));
+        
+        $resultIns = ClassRegistry::init('Result');
+        
+        $results   = $resultIns->get_results($racesId);
+       
+        $hipodromes = $this->Race->getHorsetracksByDay(
+                            $date, 
+                            1,
+                            0, //nationals?
+                            true,
+                            true
+                            );
+        
+        $this->Race->recursive = 1;
+        $this->Race->bindModel(array('hasMany'=>array('Horse')),false);
+        $this->paginate['conditions'] = array('Race.id' => $racesId);
+        $races = $this->paginate();
+        
+        foreach ($races as $rk => $race) {
+            $races[$rk]['Horse'] = $this->Race->Horse->orderThem($race['Horse'],true);
+        }
+        
+        $this->set(compact('races','hipodromes','results','date','htrackid'));
+        
+        $this->render('admin_view');
+    }
+
+
 	function admin_set_enable($id,$status) {
 		$this->Race->updateAll(array('enable'=>$status),array('Race.id'=>$id));
 		

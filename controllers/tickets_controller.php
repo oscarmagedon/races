@@ -27,7 +27,8 @@ class TicketsController extends AppController
 		
 		$actions_taq = array(
             "admin_prntkt","admin_addnew",
-			"admin_add","admin_add_pick","admin_print","admin_pay",
+			"admin_add","admin_bet",
+            "admin_add_pick","admin_print","admin_pay",
             "admin_paybarc",'admin_newpaybarc',
             "admin_pay_ticket","admin_horses_details","admin_taquilla",
             "admin_salestaq",
@@ -37,7 +38,9 @@ class TicketsController extends AppController
 		);
 		
 		$actions_onl = array(
-			"admin_add","admin_addnew","admin_print","admin_horses_details","admin_taquilla",
+			"admin_add","admin_bet",
+            "admin_addnew","admin_print",
+            "admin_horses_details","admin_taquilla",
             "admin_salestaq","admin_anull_last"
             ,"admin_anulltaq"
 		);
@@ -655,6 +658,42 @@ class TicketsController extends AppController
         //pr($nextones);
 		$this->set(compact('raceId','theDate','balance','eachUnits','nextones','myNatCnf'));
     }
+
+    /**
+     *
+     *  ***  NEW CENTRAL BET!!!
+     *
+    */
+
+    public function admin_bet()
+    {
+        $theDate   = date("Y-m-d");
+        $myNatCnf  = $this->Ticket->Profile->getNationalConf($this->authUser['profile_id']);
+        $balance   = $this->Ticket->Profile->getBalance($this->authUser['profile_id']);
+        $eachUnits = array(1,2,3,4,5,10,20,25,50,100,200,500,1000);
+        $nexts     = $this->Ticket->Race->getNextOnes(
+                        $theDate,
+                        1, //$this->authUser['center_id'],
+                        15,
+                        $myNatCnf);
+        $nextones  = array();
+        //pr($nexts['races']);
+        foreach ($nexts['races'] as $race) {
+            $nextones[$race['id']] = $race['race'].'a '.$race['htrack']. ': '. $race['diff'];
+         
+        }
+        //pr($nextones);
+        
+        $raceId = 0;
+        $title_for_layout = 'FOO!!';
+
+        $this->set(compact('theDate','raceId','title_for_layout','balance',
+                            'eachUnits','nextones','myNatCnf'));
+
+        $this->render('admin_add');
+    }
+
+
             
     function admin_taquilla($date = null) 
     {
@@ -670,6 +709,15 @@ class TicketsController extends AppController
 		$unitInt = $config->get_unit_value($this->authUser['center_id'],true);
 		$hipods  = $this->Ticket->Race->getHorsetracksByDay($date, 
                         $this->authUser['center_id'],0,true);
+
+        //new patch online only
+        if ($this->authUser['profile_id'] == 11) {
+            $unitNac = $config->get_unit_value($this->authUser['center_id']);
+            $unitInt = $config->get_unit_value($this->authUser['center_id'],true);
+            $hipods  = $this->Ticket->Race->getHorsetracksByDay($date,1,0,true);
+        }
+
+        //new patch
          
 		$this->Ticket->recursive = 0;
 		$this->Ticket->unbindModel(array('belongsTo'=>array('PlayType')),false);

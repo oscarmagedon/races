@@ -10,7 +10,9 @@ class ResultsController extends AppController {
         $this->Authed->allow(array(
             "checkfromservice","checkretires","checksrvtime",
             'readservice',
-            'closebovada','closebovadanew'));
+            'closebovada','closebovadanew',
+            'proservice','proservrace','proservbytrack'
+        ));
 	}
 	
 	function isAuthorized(){
@@ -290,6 +292,73 @@ class ResultsController extends AppController {
     {
         
     }
+
+    /**
+        ! ! !    N E W    P R O S E R V I C E  ! ! !
+
+    **/
+
+    /**
+     *  Tracks URL
+    */
+    public function proservice()
+    {
+        $protracks  = ClassRegistry::init('Protracks');
+        $proFields  = $protracks->tracksFields;
+       
+        $proserviceTracks = $protracks->getInfoTracks();
+
+        $trackIds = $protracks->getTracksIds();
+       
+        //pr($trackIds);
+
+        $this->set(compact('proserviceTracks','proFields','trackIds'));
+    }
+
+    /**
+     *  
+    */
+    public function proservrace($raceNum, $trackId, $country, $dayEve) 
+    {
+        $raceApi  = ClassRegistry::init('Prorace');
+
+        $raceInfo = $raceApi->getByRace($raceNum, $trackId, $country, $dayEve);
+        
+        //pr($raceInfo);
+        die(json_encode($raceInfo));
+        
+    }
+
+    public function proservbytrack($trackId, $country, $dayEve) {
+        
+        $raceApi  = ClassRegistry::init('Prorace');
+
+        $infoTrack = $raceApi->exploreTrack($trackId, $country, $dayEve, 20);
+        
+        //pr($infoTrack);
+        //die('link to purge and save again');
+        echo json_encode($infoTrack);
+        die();
+
+
+        //When testing, delete
+        //race delete
+        //If saved
+        //check on races
+        //
+
+        //If saved
+        $infoTrack[$key]['Saved']     = 'Count by horsetrack and center';
+        //
+        $infoTrack[$key]['Operation'] = 'PROSERV::Track-'.$trackId;
+
+        
+    }
+
+    /**
+        ! ! !    N E W   P R O S E R V I C E   ! ! !
+
+    **/
     
     
     /** B O V A D A  SERV.
