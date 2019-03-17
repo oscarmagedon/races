@@ -1,18 +1,20 @@
+<?php 
+//pr($this->params);
+ ?>
 <script>
-var load_img = 'Cargando... <?php echo $html->image("loading_small.gif",array("alt"=>"Esperando..."))?>';
-var view_horses = '<?php echo $html->url(array("controller"=>"horses","action"=>"view"))?>';
-var view_results = '<?php echo $html->url(array("controller"=>"results","action"=>"view"))?>';
+var load_img = 'Cargando... <?php 
+				echo $html->image("loading_small.gif",array("alt"=>"Esperando..."))?>';
+var thisview = '<?php echo $html->url(["action"=>$this->params['action'] ])?>';
 
 $(function() {
 	$("#date").attr('readonly',true).datepicker({dateFormat:"yy-mm-dd"});
 	$("#date").datepicker();
 	
 	$("#filt").click(function(){
-		var filt_url = '<?php echo $html->url(array("action"=>"view","/")) ?>'
 		var date = $("#date").val();
 		var hipo = $("#hipodrome_id").val();
 		
-		location = filt_url + "/" + date + "/" + hipo;
+		location = thisview + "/" + date + "/" + hipo;
 	});	
  
 });	

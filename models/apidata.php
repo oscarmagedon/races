@@ -21,16 +21,35 @@ class Apidata extends AppModel {
     					];
 
     public function createProserviceRaceUrl($raceNum, $trackId, $country, $dayEve)
-	{
-		$byRaceUrl  = $this->proservBase . $this->paramByRace;
-		$byRaceUrl .= 'currentRace/' .$raceNum;
-		$byRaceUrl .= '/trackId/' .$trackId;
-		$byRaceUrl .= '/country/' .$country;
-		$byRaceUrl .= '/dayEvening/' .$dayEve;
+    {
+        $byRaceUrl  = $this->proservBase . $this->paramByRace;
+        $byRaceUrl .= 'currentRace/' .$raceNum;
+        $byRaceUrl .= '/trackId/' .$trackId;
+        $byRaceUrl .= '/country/' .$country;
+        $byRaceUrl .= '/dayEvening/' .$dayEve;
 
-		return $byRaceUrl; 
-	
-	}
+        return $byRaceUrl; 
+    
+    }
+
+    /**
+    $this->proservBase = https://proservice-bets.drf.com/proservice/superBets/
+    results/track/TP/
+    country/USA/
+    date/03-16-2019/
+    race/3
+    */
+    public function createProserviceResultsUrl($date, $raceNum, $trackId, $country)
+    {
+        $byRaceUrl  = $this->proservBase;
+        $byRaceUrl .= 'results/track/' . $trackId;
+        $byRaceUrl .= '/country/' . $country;
+        $byRaceUrl .= '/date/' . date('m-d-Y',strtotime($date));
+        $byRaceUrl .= '/race/' . $raceNum;
+
+        return $byRaceUrl; 
+    
+    }
 
 	public static function getUsaDate($dbDate)
     {

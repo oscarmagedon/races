@@ -260,6 +260,17 @@ $menu = array ( 1 => array(
                      */
                 )
     ); 
+
+// == > PATCHES
+
+// online / online
+if ($authUser['profile_id'] == 11) {
+    $menu[4]['Carreras']['action'] = 'viewnew';
+    $menu[4]['Apostar']['action']  = 'bet';
+}
+
+// == > PATCHES 
+
 ?>
 <nav>
     <ul>
@@ -308,6 +319,9 @@ $menu = array ( 1 => array(
             echo "</li>";
                 
         }
+
+        //pr($menu);
+        //die();
         ?>
     </ul>    
 </nav>
