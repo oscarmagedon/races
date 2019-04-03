@@ -18,28 +18,30 @@ class RacesController extends AppController {
 		$ret = true;
 		
 		$actions_root = array(
-                        "admin_index_root", "admin_assign", "admin_add", "admin_edit",
-                        "admin_set_enable", "admin_delete", "admin_loadfile","admin_view",
-                        "admin_pogetmygmt","admin_reprog","admin_set_post_time",
-                        "admin_goodques","admin_checksrv",
-                        "admin_nextones",
-                        "admin_verifysrvc",'admin_resultsrv','admin_getsrvres',
-                        'admin_verify_ours', 'admin_ptimeserv'
-                    );
+            "admin_index_root", "admin_assign", "admin_add", "admin_edit",
+            "admin_set_enable", "admin_delete", "admin_loadfile","admin_view",
+            "admin_pogetmygmt","admin_reprog","admin_set_post_time",
+            "admin_goodques","admin_checksrv",
+            "admin_nextones",
+            "admin_verifysrvc",'admin_resultsrv','admin_getsrvres',
+            'admin_verify_ours', 'admin_ptimeserv'
+        );
 
 		$actions_adm = array(
-                        "admin_view","admin_list_ajax","admin_restrict",
-                        "admin_data_pick", "admin_getmygmt"
-                    );
+            "admin_view","admin_viewnew",
+            "admin_list_ajax","admin_restrict",
+            "admin_data_pick", "admin_getmygmt"
+        );
 		
         $actions_taq = array(
-                            "admin_view","admin_list_ajax","admin_data_pick"
-                        );
-		
-		$actions_onl = array(
-                            "admin_view","admin_viewnew",
-                            "admin_list_ajax","admin_data_pick"
-                        );
+            "admin_view","admin_viewnew",
+            "admin_list_ajax","admin_data_pick"
+        );
+
+        $actions_onl = array(
+            "admin_view","admin_viewnew",
+            "admin_list_ajax","admin_data_pick"
+        );
 		
 		if($this->isRoot() && in_array($this->action, $actions_root)){
 			$ret = true;

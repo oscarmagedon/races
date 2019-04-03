@@ -120,9 +120,20 @@ class TicketsController extends AppController
 		$unitNac = $config->get_unit_value($this->authUser['center_id']);
 		$unitInt = $config->get_unit_value($this->authUser['center_id'],true);
 		
+
         $hipods = $this->Ticket->Race->getHorsetracksByDay(
                         array($since,$until), 
                         $this->authUser['center_id'],0,true);
+
+        // PATCH-admonline
+
+        if ( $this->authUser['profile_id'] == 10 ) {
+            $hipods = $this->Ticket->Race->getHorsetracksByDay(
+                        array($since,$until), 
+                        1,0,true);
+
+        }
+        // PATCH-admonline
 
         $this->Ticket->unbindModel(array('belongsTo'=>array('PlayType')),false);
         
@@ -141,6 +152,13 @@ class TicketsController extends AppController
     {
         
         $cid = $this->authUser['center_id'];
+
+        // PATCH-admonline
+
+        if ( $this->authUser['profile_id'] == 10 ) {
+            $cid = 1;
+        }
+        // PATCH-admonline
         
         if ( $since == null ) {
             $since = date('Y-m-d');

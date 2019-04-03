@@ -2,6 +2,41 @@
 
 <ul>
     <li>
+        <h4>Proservices Races</h4>
+        <h3>
+            <?php
+            echo $html->link('Races',array(
+                'controller' => 'apidatas',
+                'action'     => 'proservtracks',
+                'admin'      => false
+            ),
+            array('target'=>'blank'))
+            ?>
+        </h3>
+    </li>
+    <li>
+        <h4>Proservices Results</h4>
+        <h3>
+            <?php
+            echo $html->link('Results',array(
+                'controller' => 'apidatas',
+                'action'     => 'proresults',
+                'admin'      => true
+            ),
+            array('target'=>'blank'))
+            ?>
+        </h3>
+    </li>
+    <li>
+        <h4>Proservices Races</h4>
+        <h3>
+            <?php
+            echo $html->link('Races',array('controller'=>'results',
+                    'action' => 'closebovada','admin'=> false),array('target'=>'blank'))
+            ?>
+        </h3>
+    </li>
+    <li>
         <h4>Cada 5 segundos (sleep)</h4>
         <h3>
             <?php

@@ -48,6 +48,20 @@ class Proresult extends Apidata {
 
 	}
 
+	public function getHtracks($date,$centerId)
+	{
+		$race = new Race();
+
+		return $race->getHorsetracksByDay(
+                            $date, 
+                            $centerId,
+                            0, //nationals?
+                            true,
+                            true
+                            );
+	}
+
+
 	public function saveResults($raceId, $date, $nick, $number)
 	{
 		/*
@@ -92,6 +106,33 @@ class Proresult extends Apidata {
 
 		// Update race
 		$raceMod->updateAll(['ended'=>1,'enable'=>0],['Race.id'=>$raceId]);
+
+
+		//retiures!!!
+
+
+
+		 //resetear todos los caballos a enable = 1
+        $horses = $horseModel->getRiders($data['Race']['id']);
+        
+        $horseModel->updateAll(
+            array('enable'   => 1),
+            array('Horse.id' => $horses)
+        );
+        
+        //retirados
+        if (isset($data['Retired'])) {
+            $horseModel->setRetired(array_keys($data['Retired']));
+        }
+
+
+        
+		//retiures!!!
+
+
+
+
+
 
 		// operation insert!!
 		$operationMeta = "Proservice ". $nick .' '. $number;

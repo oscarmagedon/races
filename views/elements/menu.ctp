@@ -263,10 +263,16 @@ $menu = array ( 1 => array(
 
 // == > PATCHES
 
-// online / online
-if ($authUser['profile_id'] == 11) {
+// online 
+if ( $authUser['profile_id'] == 11 ) {
     $menu[4]['Carreras']['action'] = 'viewnew';
     $menu[4]['Apostar']['action']  = 'bet';
+}
+
+// admonline 
+if ( $authUser['profile_id'] == 10 ) {
+    $menu[2]['Carreras']['action'] = 'viewnew';
+    //$menu[4]['Apostar']['action']  = 'bet';
 }
 
 // == > PATCHES 

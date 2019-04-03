@@ -13,8 +13,30 @@ class ApidatasController extends AppController {
             'proservtracks',
             'proservbytrack',
             'deletebytrack',
-            'proresults','saveresults'
+            'proresults',
+            'saveresults'
         ]);
+    }
+
+
+    public function isAuthorized()
+    {
+
+        $ret = true;
+        
+        $actions_root = ['admin_proresults','admin_saveresults','admin_resetrace'];
+        
+
+        if($this->isRoot() && in_array($this->action, $actions_root)){
+            $ret = true;
+        }
+
+        return $ret;
+    }
+
+    public function admin_index()
+    {
+
     }
     
     /**
@@ -95,7 +117,6 @@ class ApidatasController extends AppController {
 
         $nextRaces = $proresult->getNextRaces($date, 15);
 
-        //pr($nextRaces);
 
         $racesLog = [];
 
@@ -103,10 +124,10 @@ class ApidatasController extends AppController {
             $racesLog[] = [
                 'Info'   => $race,
                 'ProURL' => $proresult->createProserviceResultsUrl(
-                                    $date, 
-                                    $race['Race']['number'], 
-                                    $race['Hipodrome']['nick'], 
-                                    'USA')
+                                $date, 
+                                $race['Race']['number'], 
+                                $race['Hipodrome']['nick'], 
+                                'USA')
             ]; 
         }
 
@@ -114,6 +135,70 @@ class ApidatasController extends AppController {
 
         $this->set(compact('date','racesLog'));
 
+    }
+    /**
+        LOgged filter by htrack and date
+    */
+    public function admin_proresults($date = null, $htrack = null)
+    {   
+        $proresult = ClassRegistry::init('Proresult');
+        $raceMod   = ClassRegistry::init('Race');
+
+        if ($date == null) {
+            $date = date('Y-m-d');
+        }
+
+        $htracks   = $proresult->getHtracks($date, $this->authUser['center_id']);
+
+        //pr($htracks);
+
+        $racesLog = [];
+
+        if ( $htrack !== null ) {
+            
+            //$nextRaces = $proresult->getNextRaces($date, 15);
+            
+            $nextRaces = $raceMod->find('all',[
+                'conditions' => [
+                    'hipodrome_id' => $htrack,
+                    'center_id'    => 1,
+                    'race_date'    => $date
+
+                ]
+            ]);
+
+            foreach ($nextRaces as $race) {
+                $racesLog[] = [
+                    'Info'   => $race,
+                    'ProURL' => $proresult->createProserviceResultsUrl(
+                                    $date, 
+                                    $race['Race']['number'], 
+                                    $race['Hipodrome']['nick'], 
+                                    'USA'),
+                'ProRace' => $proresult->createProserviceRaceUrl(
+                                $race['Race']['number'], 
+                                $race['Hipodrome']['nick'], 
+                                'USA', 
+                                'D')
+                ]; 
+            }            
+        }
+
+        //$protracks = ClassRegistry::init('Protrack');
+
+        $usaDate = $proresult::getUsaDate($date);
+
+        $this->pageTitle = 'Adm-Results Proservice';
+
+        $this->set(compact('date','usaDate', 'htracks', 'htrack', 'racesLog'));
+
+    }
+
+    public function admin_saveresults($raceId, $date, $nick,$number)
+    { 
+        $this->saveresults($raceId, $date, $nick,$number);
+
+        $this->render('saveresults');
     }
 
     //test by raceId function 
@@ -133,7 +218,7 @@ class ApidatasController extends AppController {
         $this->redirect($this->referer());  
     }
 
-    public function resetrace($raceId)
+    public function admin_resetrace($raceId)
     {
         $proresult = ClassRegistry::init('Proresult');
 
