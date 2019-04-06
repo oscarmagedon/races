@@ -1,6 +1,13 @@
 <?php
 class TicketHorse extends AppModel {
 
+	/**
+		ORIGINAL
+
+	(select `ht`.`id` AS `id`,`ht`.`ticket_id` AS `ticket_id`,`h`.`number` AS `number`,`h`.`name` AS `name`,`ht`.`units` AS `units`,`ht`.`prize` AS `prize`,`hts`.`name` AS `status_name`,`pt`.`name` AS `play_name`,`ht`.`box_number` AS `box_num` from (((`totalraces`.`horses_tickets` `ht` join `totalraces`.`horses` `h` on((`ht`.`horse_id` = `h`.`id`))) join `totalraces`.`horses_tickets_statuses` `hts` on((`ht`.`horses_tickets_status_id` = `hts`.`id`))) join `totalraces`.`play_types` `pt` on((`ht`.`play_type_id` = `pt`.`id`))))
+	*/
+
+
 	var $name = 'TicketHorse';
 
 	
