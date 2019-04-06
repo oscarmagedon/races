@@ -6,9 +6,11 @@
         <h3>
             <?php
             echo $html->link('Races',array(
+                'admin'      => true,
                 'controller' => 'apidatas',
                 'action'     => 'proservtracks',
-                'admin'      => false
+                date('Y-m-d'),
+                1
             ),
             array('target'=>'blank'))
             ?>

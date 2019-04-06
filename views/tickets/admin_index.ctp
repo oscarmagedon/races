@@ -114,7 +114,15 @@ foreach ($tickets as $ticket):
             <?php echo $ticket['Ticket']['via'] ?>
         </td>
         <td class="<?= $unitCls ?>">
-			<?php echo $hipods[$ticket['Race']['hipodrome_id']] ?>
+			<?php 
+
+			if (isset($hipods[$ticket['Race']['hipodrome_id']])) {
+				echo $hipods[$ticket['Race']['hipodrome_id']];
+			} else {
+				echo $ticket['Race']['hipodrome_id']. '- unset'; 
+			}
+
+			?>
 		</td>
         <td>
 			<?php echo $ticket['Race']['number'] ?>a.
@@ -170,9 +178,10 @@ foreach ($tickets as $ticket):
 /*
 echo $unitNac . " - " . $unitInt; 
 pr($intls);
-pr($hipods);
+
 pr($tickets);
 */
+//pr($hipods);
 ?>
 
 <div class="paging">

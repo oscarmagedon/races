@@ -4,6 +4,8 @@ App::Import('Model','Apidata');
 App::Import('Model','Race');
 App::Import('Model','Horse');
 App::Import('Model','Result');
+App::Import('Model','HorsesTicket');
+App::Import('Model','Ticket');
 App::Import('Model','Operation');
 App::Import('Helper','Time');
 
@@ -64,11 +66,6 @@ class Proresult extends Apidata {
 
 	public function saveResults($raceId, $date, $nick, $number)
 	{
-		/*
-		SELECT * FROM `races` WHERE hipodrome_id = 39 and race_date = '2019-03-16' ;
-		SELECT * FROM `results` WHERE race_id = 16582;
-		*/
-		
 		$raceMod    = new Race();
 
 		$horseMod   = new Horse();
@@ -77,11 +74,21 @@ class Proresult extends Apidata {
 
 		$operMod    = new Operation();
 
+
+		// operation START MONITORING insert
+		$operationMeta = "Proservice Start.". $nick .' '. $number;
+		$operMod->ins_op(3, 1, 'Resultados', $raceId, $operationMeta);
+
+		
 		$proservurl = $this->createProserviceResultsUrl($date, $number, $nick, 'USA');
 
 		$jsonResp   = file_get_contents($proservurl);
 
 		$resultLog  = ['Data' => $this->normalResults($jsonResp)];
+		
+		if (isset($resultLog['Data']['Error'])){
+			die($resultLog['Data']['Error']);
+		}
 
 		$resultLog['HorseIds'] = $horseMod->find('list',[
 									'conditions' => ['race_id' => $raceId],
@@ -89,9 +96,9 @@ class Proresult extends Apidata {
 									'recursive'  => -1 
 								]);
 
-		$resultLog['Results'] = [];
+		$resultLog['Results']  = [];
 		
-		foreach ($resultLog['Data'] as $result) {
+		foreach ($resultLog['Data']['Results'] as $result) {
 			$result['horse_id'] = $this->_findHorseId($resultLog['HorseIds'], $result['number']);
 			$result['race_id']  = $raceId;
 
@@ -101,46 +108,172 @@ class Proresult extends Apidata {
 			$resultLog['Results'][]   = $result;
 		}
 
+
 		//save results
 		$resultMod->saveAll($resultLog['Results']);
 
-		// Update race
-		$raceMod->updateAll(['ended'=>1,'enable'=>0],['Race.id'=>$raceId]);
+		//after saving results update RACE and special-prizes:
+		$raceMod->setRaceEnded($raceId,$resultLog['Data']['Specials']);
+
+		//SETS PRIZES
+		$this->_setPrizesWinners($resultLog['Results']);
+
+		//SETS RETIRED AND RETURNS UNITS
+		//...
+
+		//PUT THE REST OF THE HORSES AS LOSERS
+		//...
 
 
-		//retiures!!!
+		$horseIds = [];
+		foreach ($resultLog['Results'] as $winner) {
+			array_push($horseIds, $winner['horse_id']);
+		}
 
+		//GET TOTAL BY TICKETS
+		$prizesByTicket = $this->_getPrizeByTickets($horseIds);
 
+		$tksCount = count($prizesByTicket);
 
-		 //resetear todos los caballos a enable = 1
-        $horses = $horseModel->getRiders($data['Race']['id']);
-        
-        $horseModel->updateAll(
-            array('enable'   => 1),
-            array('Horse.id' => $horses)
-        );
-        
-        //retirados
-        if (isset($data['Retired'])) {
-            $horseModel->setRetired(array_keys($data['Retired']));
-        }
+		//reset prizes method 
+		//...
 
+		// prize setter method
+		$this->_setTicketsPrizes($prizesByTicket);
 
-        
-		//retiures!!!
-
-
-
-
-
+		//pr($prizesByTicket);
+		//pr($resultLog);
+		//die();		
 
 		// operation insert!!
-		$operationMeta = "Proservice ". $nick .' '. $number;
+		$operationMeta = "Proservice End." . $tksCount . ' tks. '. $nick .' '. $number;
 		$operMod->ins_op(3, 1, 'Resultados', $raceId, $operationMeta);
 
 		//return log
 		return $resultLog;
 	}
+
+	//sets horses tickets statuses and prizes
+	private function _setPrizesWinners($winners)
+	{
+		$hrsTicketsModel = new HorsesTicket();
+
+		//  ---- P  R  I  M  E  R    C  A  B  A  L  L  O   -------
+		$hrsTicketsModel->updateAll(
+			[
+				'prize' => '( `units` *' . $winners[0]['win'] . ")",
+				'horses_tickets_status_id' => 2
+			],
+			[
+				'horse_id'     => $winners[0]['horse_id'], 
+				'play_type_id' => 1	
+			]
+		);	
+
+		$hrsTicketsModel->updateAll(
+			[
+				'prize' => '( `units` *' . $winners[0]['place'] . ")",
+				'horses_tickets_status_id' => 2
+			],
+			[
+				'horse_id'     => $winners[0]['horse_id'], 
+				'play_type_id' => 2	
+			]
+		);
+
+		$hrsTicketsModel->updateAll(
+			[
+				'prize' => '( `units` *' . $winners[0]['show'] . ")",
+				'horses_tickets_status_id' => 2
+			],
+			[
+				'horse_id'     => $winners[0]['horse_id'], 
+				'play_type_id' => 3	
+			]
+		);	
+
+	    //  ---- S  E  G  U  N  D  O    C  A  B  A  L  L  O   -------
+
+		$hrsTicketsModel->updateAll(
+			[
+				'prize' => '( `units` *' . $winners[1]['place'] . ")",
+				'horses_tickets_status_id' => 2
+			],
+			[
+				'horse_id'     => $winners[1]['horse_id'], 
+				'play_type_id' => 2	
+			]
+		);
+
+		$hrsTicketsModel->updateAll(
+			[
+				'prize' => '( `units` *' . $winners[1]['show'] . ")",
+				'horses_tickets_status_id' => 2
+			],
+			[
+				'horse_id'     => $winners[1]['horse_id'], 
+				'play_type_id' => 3	
+			]
+		);
+
+        //  ---- T  E  R  C  E  R    C  A  B  A  L  L  O   -------
+
+		$hrsTicketsModel->updateAll(
+			[
+				'prize' => '( `units` *' . $winners[2]['show'] . ")",
+				'horses_tickets_status_id' => 2
+			],
+			[
+				'horse_id'     => $winners[2]['horse_id'], 
+				'play_type_id' => 3	
+			]
+		);
+	}
+
+	//get listed prizes by 
+    private function _getPrizeByTickets($horseIds)
+    {
+        $hrsTicketsModel = new HorsesTicket();
+
+        $prizes = $hrsTicketsModel->find(
+            'all',
+            [
+                'conditions' => [
+                	'prize >'  => 0, 
+                	'horse_id' => $horseIds
+                ],
+                'fields'     => ['ticket_id','prize'], 
+                'recursive'  => -1
+        	]
+        );
+
+
+        $byTicket = array();	
+        foreach($prizes as $pr){
+            if(!empty($byTicket[$pr['HorsesTicket']['ticket_id']]))
+                $byTicket[$pr['HorsesTicket']['ticket_id']] += $pr['HorsesTicket']['prize'];
+            else
+                $byTicket[$pr['HorsesTicket']['ticket_id']] = $pr['HorsesTicket']['prize'];
+        }
+
+        return $byTicket;
+    }
+
+    // CALCULATE TICKETS
+    private function _setTicketsPrizes($prizesWinners)
+    {
+    	$ticketMod = new Ticket();
+
+    	foreach ($prizesWinners as $ticket => $prize ) {
+            $ticketMod->updateAll(
+                ['prize'     => $prize],
+                ['Ticket.id' => $ticket]
+			);
+		}
+    }
+		    
+
+
 
 	private function _findHorseId($horses,$number)
 	{
@@ -157,10 +290,19 @@ class Proresult extends Apidata {
 	{
 		$resultServ = json_decode($jsonResp, TRUE);
 
-		$resultsInfo = [];
+		$resultsInfo = [
+			'Results'  => [],
+			'Specials' => []
+		];
 
+		if (!isset($resultServ[0])) {
+			$resultsInfo['Error'] = 'No results yet';
+			return $resultsInfo;
+		}
+
+		// W-P-S
 		foreach ($resultServ[0]['runners'] as $key => $result) {
-			$resultsInfo[] = [
+			$resultsInfo['Results'][] = [
 				'position' => ($key + 1),
 				//'race_id'  => 12345,
 				//'horse_id' => 78999,
@@ -170,6 +312,26 @@ class Proresult extends Apidata {
 				'show'     => $result['showPayoff']
 			];
 		}
+
+		//Specials
+		foreach ($resultServ[0]['payoffs'] as $special) {
+			
+			if ($special['wagerName'] == 'EXACTA' ||
+				$special['wagerType'] == 'E') {
+				$resultsInfo['Specials']['exacta'] = $special['payoffAmount'];
+			}
+
+			if ($special['wagerName'] == 'TRIFECTA' || 
+				$special['wagerType'] == 'T') {
+				$resultsInfo['Specials']['trifecta'] = $special['payoffAmount'];
+			}
+			
+			if ($special['wagerName'] == 'SUPERFECTA' ||
+				$special['wagerType'] == 'S') {
+				$resultsInfo['Specials']['superfecta'] = $special['payoffAmount'];
+			}
+		}
+
 
 		return $resultsInfo;
 

@@ -10,11 +10,9 @@ class ApidatasController extends AppController {
         parent::beforeFilter();
 
         $this->Authed->allow([
-            'proservtracks',
-            'proservbytrack',
-            'deletebytrack',
-            'proresults',
-            'saveresults'
+            //'proservtracks',
+            //'proservbytrack',
+            //'deletebytrack','proresults', 'saveresults'
         ]);
     }
 
@@ -24,7 +22,12 @@ class ApidatasController extends AppController {
 
         $ret = true;
         
-        $actions_root = ['admin_proresults','admin_saveresults','admin_resetrace'];
+        $actions_root = [
+            'admin_proservtracks',
+            'admin_deletebytrack',
+            'admin_proservbytrack',
+            'admin_proresults','admin_saveresults','admin_resetrace'
+        ];
         
 
         if($this->isRoot() && in_array($this->action, $actions_root)){
@@ -42,7 +45,7 @@ class ApidatasController extends AppController {
     /**
      *
      */ 
-    public function proservtracks($dbDate = null, $fullMode = 0)
+    public function admin_proservtracks($dbDate = null, $fullMode = 0)
     {   
         //Y-m-d
         $dbDate     = ($dbDate!=null)?$dbDate:date('Y-m-d');
@@ -83,7 +86,7 @@ class ApidatasController extends AppController {
             'proFields','trackIds','racesNick','title_for_layout'));
     }
 
-    public function proservbytrack($trackId, $country, $dayEve) {
+    public function admin_proservbytrack($trackId, $country, $dayEve) {
         
         $raceApi  = ClassRegistry::init('Prorace');
 
@@ -96,7 +99,7 @@ class ApidatasController extends AppController {
         $this->redirect($this->referer());        
     }
 
-    public function deletebytrack($trackId)
+    public function admin_deletebytrack($trackId)
     {
         $prorace = ClassRegistry::init('Prorace');
 
@@ -106,36 +109,7 @@ class ApidatasController extends AppController {
 
         $this->redirect($this->referer());   
     }
-
-    public function proresults($date = null)
-    {   
-        if ($date == null) {
-            $date = date('Y-m-d');
-        }
-        
-        $proresult = ClassRegistry::init('Proresult');
-
-        $nextRaces = $proresult->getNextRaces($date, 15);
-
-
-        $racesLog = [];
-
-        foreach ($nextRaces as $race) {
-            $racesLog[] = [
-                'Info'   => $race,
-                'ProURL' => $proresult->createProserviceResultsUrl(
-                                $date, 
-                                $race['Race']['number'], 
-                                $race['Hipodrome']['nick'], 
-                                'USA')
-            ]; 
-        }
-
-        $this->pageTitle = 'Results Proservice';
-
-        $this->set(compact('date','racesLog'));
-
-    }
+    
     /**
         LOgged filter by htrack and date
     */
@@ -194,15 +168,9 @@ class ApidatasController extends AppController {
 
     }
 
-    public function admin_saveresults($raceId, $date, $nick,$number)
-    { 
-        $this->saveresults($raceId, $date, $nick,$number);
-
-        $this->render('saveresults');
-    }
 
     //test by raceId function 
-    public function saveresults($raceId, $date, $nick,$number)
+    public function admin_saveresults($raceId, $date, $nick,$number)
     {   
         if ($date == null) {
             $date = date('Y-m-d');
@@ -227,6 +195,46 @@ class ApidatasController extends AppController {
         $this->Session->setFlash('Carrera ID ' .$raceId .' restaurada.');
 
         $this->redirect($this->referer());  
+    }
+
+    /*
+    DEPR
+    */
+    public function proresults($date = null)
+    {   
+        if ($date == null) {
+            $date = date('Y-m-d');
+        }
+        
+        $proresult = ClassRegistry::init('Proresult');
+
+        $nextRaces = $proresult->getNextRaces($date, 15);
+
+
+        $racesLog = [];
+
+        foreach ($nextRaces as $race) {
+            $racesLog[] = [
+                'Info'   => $race,
+                'ProURL' => $proresult->createProserviceResultsUrl(
+                                $date, 
+                                $race['Race']['number'], 
+                                $race['Hipodrome']['nick'], 
+                                'USA')
+            ]; 
+        }
+
+        $this->pageTitle = 'Results Proservice';
+
+        $this->set(compact('date','racesLog'));
+
+    }
+
+    public function ZZZadmin_saveresults($raceId, $date, $nick,$number)
+    { 
+        //$this->saveresults($raceId, $date, $nick,$number);
+
+        //$this->render('saveresults');
     }
 
 }
