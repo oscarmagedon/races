@@ -55,6 +55,10 @@ $menu = array ( 1 => array(
                                             'Servicios'  => array(
                                                             'controller' => 'results',
                                                             'action'     => 'services'
+                                                        ),
+                                            'APIs Info'  => array(
+                                                            'controller' => 'apidatas',
+                                                            'action'     => 'index'
                                                         )
                                             /*,
                                             'Diff Horas SRV' => array(

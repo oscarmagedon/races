@@ -51,6 +51,16 @@ class Apidata extends AppModel {
     
     }
 
+    /*
+
+    */
+    public function createBovadaUrl($nickBovada)
+    {
+        return "https://horses.bovada.lv/services/sports/" .
+                    "event/v2/events/B/description/horse-racing/".
+                    $nickBovada;
+    }
+
 	public static function getUsaDate($dbDate)
     {
     	$timeClass = ClassRegistry::init('TimeHelper');

@@ -41,23 +41,36 @@
 
 		<?php 
 		echo $form->input('htracks',[
-			'options'=>$htracks,
-			'value'=>$htrack,
-			'div'=>false,'label'=>false])
+			'options' => $htracks,
+			'value'   => $htrack,
+			'empty'   => [0 => 'Sel...'],
+			'div'     => false,
+			'label'   => false])
 		 ?>
 
 	</div>
 
 
 	<div class="panel-infotable">
-			
+		
+		<h3>			
+			<?php 
+			//
+			if ($bovadaCheck != '') {
+				echo $html->link('Check Bovada',
+					['action' => 'bovada', $bovadaCheck],
+					['target' => '_blank']
+				);
+			}
+			?>
+		</h3>
 		<table>
 			<tr>
 				<th>Race</th>
 				<th>Time</th>
 				<th>Status</th>
-				<th>Check Race</th>
-				<th>Check Result</th>
+				<th colspan="2">PROSERVICE</th>
+				<th>Bovada</th>
 				<th>Save Result</th>
 				<th>Delete Result</th>
 			</tr>
@@ -94,12 +107,21 @@
 					</td>
 					<td>
 						<?php 
-		 				echo $html->link('ProservRace', $race['ProRace']) 
+		 				echo $html->link('Races', $race['ProRace']) 
 						?>
 					</td>
 					<td>
 						<?php 
-		 				echo $html->link('ProservResult', $race['ProURL']) 
+		 				echo $html->link('Results', $race['ProURL']) 
+						?>
+					</td>
+					<td>
+						<?php 
+		 				echo $html->link('Check', [
+		 					'action' => 'bovadarace',
+		 					$race['Info']['Hipodrome']['bovada'],
+		 					$race['Info']['Race']['number']
+		 				]) 
 						?>
 					</td>
 					<td>

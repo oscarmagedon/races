@@ -24,8 +24,14 @@ class ApidatasController extends AppController {
         
         $actions_root = [
             'admin_proservtracks',
+
+            'admin_addbytrack',
+
+            'admin_nextones',
+
             'admin_deletebytrack',
             'admin_proservbytrack',
+            'admin_bovada',
             'admin_proresults','admin_saveresults','admin_resetrace'
         ];
         
@@ -40,6 +46,7 @@ class ApidatasController extends AppController {
     public function admin_index()
     {
 
+        $this->pageTitle = 'API Services';
     }
     
     /**
@@ -86,7 +93,21 @@ class ApidatasController extends AppController {
             'proFields','trackIds','racesNick','title_for_layout'));
     }
 
-    public function admin_proservbytrack($trackId, $country, $dayEve) {
+    public function admin_addbytrack()
+    {
+
+    }
+
+    public function admin_nextones()
+    {
+
+    }
+
+    /**
+        SAVE RACES 
+    */
+    public function admin_proservbytrack($trackId, $country, $dayEve) 
+    {
         
         $raceApi  = ClassRegistry::init('Prorace');
 
@@ -112,6 +133,9 @@ class ApidatasController extends AppController {
     
     /**
         LOgged filter by htrack and date
+        
+        I have to split this in 2 different functions
+
     */
     public function admin_proresults($date = null, $htrack = null)
     {   
@@ -126,7 +150,9 @@ class ApidatasController extends AppController {
 
         //pr($htracks);
 
-        $racesLog = [];
+        $bovadaCheck = "";
+        
+        $racesLog    = [];
 
         if ( $htrack !== null ) {
             
@@ -149,23 +175,26 @@ class ApidatasController extends AppController {
                                     $race['Race']['number'], 
                                     $race['Hipodrome']['nick'], 
                                     'USA'),
-                'ProRace' => $proresult->createProserviceRaceUrl(
+                    'ProRace' => $proresult->createProserviceRaceUrl(
                                 $race['Race']['number'], 
                                 $race['Hipodrome']['nick'], 
                                 'USA', 
-                                'D')
+                                'D'),
+                    'Bovada' => '#'
                 ]; 
-            }            
-        }
+            } 
 
+            if (!empty($nextRaces))
+                $bovadaCheck = $race['Hipodrome']['bovada'];          
+        }
+        //pr($racesLog);
         //$protracks = ClassRegistry::init('Protrack');
 
         $usaDate = $proresult::getUsaDate($date);
 
         $this->pageTitle = 'Adm-Results Proservice';
 
-        $this->set(compact('date','usaDate', 'htracks', 'htrack', 'racesLog'));
-
+        $this->set(compact('date','usaDate', 'htracks', 'htrack', 'racesLog','bovadaCheck'));
     }
 
 
@@ -197,44 +226,123 @@ class ApidatasController extends AppController {
         $this->redirect($this->referer());  
     }
 
+
     /*
-    DEPR
+        Become this a BovadaLog and send it to a small 
+        view with the style created
     */
-    public function proresults($date = null)
-    {   
-        if ($date == null) {
-            $date = date('Y-m-d');
+
+    public function admin_bovada($bovadaNick)
+    {
+        $proresult  = ClassRegistry::init('Proresult');  
+        $urlCheck   = $proresult->createBovadaUrl($bovadaNick);        
+        $dataString = file_get_contents($urlCheck);
+        $dataBovada = json_decode($dataString);
+        $bovadaLog  = [];
+
+        foreach ($dataBovada[0]->events as $race) {
+            
+            $raceLog = [
+                'number' => $race->details->raceNumber,
+                'status' => $race->status,
+                'Horses' => []
+            ];
+           
+            foreach ($race->displayGroups[0]->markets[0]->outcomes as $horse) {
+                $horseLog = [
+                    'number' => $horse->details->saddleNumber,
+                    'ccode'  => $horse->details->coupledCode,
+                    'name'   => $horse->description,
+                    'status' => $horse->status
+                ];
+
+                if ($horse->details->scratched) {
+                    //SCRATCH!! ';
+                    $horseLog['scratched'] = 'true';
+                    /*
+                    //disable ALL RACES
+                    $this->Result->Race->updateAll(
+                        array('enable'  => 0, 'close_time' => "'" . date('H:i:s') . "'"),
+                        array('Race.id' => $racesSons));
+
+                    */
+                }
+
+                $raceLog['Horses'][] = $horseLog;
+            }
+            
+            $bovadaLog[] = $raceLog;
         }
-        
-        $proresult = ClassRegistry::init('Proresult');
 
-        $nextRaces = $proresult->getNextRaces($date, 15);
+        $this->pageTitle = 'Bovada all races';        
 
-
-        $racesLog = [];
-
-        foreach ($nextRaces as $race) {
-            $racesLog[] = [
-                'Info'   => $race,
-                'ProURL' => $proresult->createProserviceResultsUrl(
-                                $date, 
-                                $race['Race']['number'], 
-                                $race['Hipodrome']['nick'], 
-                                'USA')
-            ]; 
-        }
-
-        $this->pageTitle = 'Results Proservice';
-
-        $this->set(compact('date','racesLog'));
-
+        $this->set(compact('bovadaLog','urlCheck'));
     }
 
-    public function ZZZadmin_saveresults($raceId, $date, $nick,$number)
-    { 
-        //$this->saveresults($raceId, $date, $nick,$number);
+    public function admin_bovadarace($bovadaNick, $raceNumber)
+    {
+        $proresult  = ClassRegistry::init('Proresult');  
+        $urlCheck   = $proresult->createBovadaUrl($bovadaNick);        
+        $dataString = file_get_contents($urlCheck);
+        $dataBovada = json_decode($dataString);
+        $raceLog    = [];
+        $raceFound  = false;
+        $retiresBov = [];
 
-        //$this->render('saveresults');
+        foreach ($dataBovada[0]->events as $race) {
+            
+            if ($raceNumber == $race->details->raceNumber) {
+                
+                $raceLog = [
+                    'number' => $race->details->raceNumber,
+                    'status' => $race->status,
+                    'Horses' => []
+                ];
+
+                foreach ($race->displayGroups[0]->markets[0]->outcomes as $horse) {
+                    $horseLog = [
+                        'number' => $horse->details->saddleNumber,
+                        'ccode'  => $horse->details->coupledCode,
+                        'name'   => $horse->description,
+                        'status' => $horse->status
+                    ];
+
+                    if ($horse->details->scratched) {
+                        //SCRATCH!! ';
+                        $horseLog['scratched'] = 'true';
+                        /*
+                        //disable ALL RACES
+                        $this->Result->Race->updateAll(
+                            array('enable'  => 0, 'close_time' => "'" . date('H:i:s') . "'"),
+                            array('Race.id' => $racesSons));
+
+                        */
+                        array_push($retiresBov, $horse->details->saddleNumber);
+                    }
+
+                    $raceLog['Horses'][] = $horseLog;
+                }
+
+                $raceFound = true;
+            } 
+        }
+
+        pr($retiresBov);
+
+        pr($raceLog);
+
+        die();
+
+        //if racenotfound
+            //set raceid suspended and log operation
+
+        //else
+        //check race retires
+        //compare and add the new ones
+        //if retires new were added add operations
+
+        //$this->pageTitle = 'Bovada all races';
+
+        //$this->set(compact('bovadaLog','urlCheck'));
     }
-
 }

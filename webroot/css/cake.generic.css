@@ -41,14 +41,14 @@ a {
 	font-weight: bold;
 }
 a:hover {
-	color: #3D9E00;
+	color: #14a686;
 	text-decoration: underline;
 }
 a img {
 	border:none;
 }
 h1 {
-	color: #252525;
+	color: #14a686;
 	font-weight:bold;
 	font-size: 100%;
 	margin: 0.1em 0;
@@ -60,10 +60,10 @@ h2 {
 	margin-left: 10px;
 	padding-top: 3px;
 	padding-bottom: 5px;
-	color: #255E00;
+	color: #14a686;
 }
 h3 {
-	color: #252525;
+	color: #14a686;
 	font-weight:bold;
 	font-family:'Gill Sans','lucida grande',helvetica, arial, sans-serif;
 	font-size: 160%;
@@ -73,7 +73,7 @@ h3 {
 	padding-bottom: 5px;
 }
 h4 {
-	color: #252525;
+	color: #14a686;
 	font-weight:bold;
 	font-weight: normal;
 	padding-top: 0.5em;
@@ -94,7 +94,7 @@ table {
 	
 }
 th {
-	background: #DBEDD0;
+	background: #18ba9a6e;
 	border:1px solid #bbb;
 	border-top: 1px solid #fff;
 	border-left: 1px solid #fff;
@@ -232,17 +232,19 @@ input[type=submit] {
 
 /* Notices and Errors */
 div.message {
-	position: relative;
+	position: absolute;
 	width:90%;
 	color: #900;
 	font-size: 130%;
 	margin: 3px;
 	font-weight: bold;
 	text-align:right;
+  top: 120px;
+  right:30px;
 }
 @media only screen
 and (min-device-width : 320px)
-and (max-device-width : 768px) {
+and (max-device-width : 1024px) {
 /* Layout */
 div.paging {
 	display:none;
@@ -255,13 +257,15 @@ div.message {
     font-size: 2em;
     font-weight: bold;
     text-align: center;
-    background-color:#459e00;
+    background-color:#18ba9a;
     margin-top:140px;
-    margin-left: 20px;
+    margin-right: -10%;
     z-index:100;
     padding:20px;
     border-radius:10px;
+  
 }
+  
 div.error-message {
 	clear: both;
 	color: #900;
