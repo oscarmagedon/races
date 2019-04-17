@@ -234,103 +234,24 @@ class ApidatasController extends AppController {
 
     public function admin_bovada($bovadaNick)
     {
-        $proresult  = ClassRegistry::init('Proresult');  
-        $urlCheck   = $proresult->createBovadaUrl($bovadaNick);        
-        $dataString = file_get_contents($urlCheck);
-        $dataBovada = json_decode($dataString);
-        $bovadaLog  = [];
+        $bovadaMod = ClassRegistry::init('Bovada');  
+        
+        $bovadaLog = $bovadaMod->getAllInfo($bovadaNick);
 
-        foreach ($dataBovada[0]->events as $race) {
-            
-            $raceLog = [
-                'number' => $race->details->raceNumber,
-                'status' => $race->status,
-                'Horses' => []
-            ];
-           
-            foreach ($race->displayGroups[0]->markets[0]->outcomes as $horse) {
-                $horseLog = [
-                    'number' => $horse->details->saddleNumber,
-                    'ccode'  => $horse->details->coupledCode,
-                    'name'   => $horse->description,
-                    'status' => $horse->status
-                ];
-
-                if ($horse->details->scratched) {
-                    //SCRATCH!! ';
-                    $horseLog['scratched'] = 'true';
-                    /*
-                    //disable ALL RACES
-                    $this->Result->Race->updateAll(
-                        array('enable'  => 0, 'close_time' => "'" . date('H:i:s') . "'"),
-                        array('Race.id' => $racesSons));
-
-                    */
-                }
-
-                $raceLog['Horses'][] = $horseLog;
-            }
-            
-            $bovadaLog[] = $raceLog;
-        }
+        $urlCheck  = $bovadaMod->createBovadaUrl($bovadaNick);        
 
         $this->pageTitle = 'Bovada all races';        
 
         $this->set(compact('bovadaLog','urlCheck'));
     }
 
-    public function admin_bovadarace($bovadaNick, $raceNumber)
+    public function admin_bovadarace($bovadaNick, $raceNumber, $raceId)
     {
-        $proresult  = ClassRegistry::init('Proresult');  
-        $urlCheck   = $proresult->createBovadaUrl($bovadaNick);        
-        $dataString = file_get_contents($urlCheck);
-        $dataBovada = json_decode($dataString);
-        $raceLog    = [];
-        $raceFound  = false;
-        $retiresBov = [];
-
-        foreach ($dataBovada[0]->events as $race) {
-            
-            if ($raceNumber == $race->details->raceNumber) {
-                
-                $raceLog = [
-                    'number' => $race->details->raceNumber,
-                    'status' => $race->status,
-                    'Horses' => []
-                ];
-
-                foreach ($race->displayGroups[0]->markets[0]->outcomes as $horse) {
-                    $horseLog = [
-                        'number' => $horse->details->saddleNumber,
-                        'ccode'  => $horse->details->coupledCode,
-                        'name'   => $horse->description,
-                        'status' => $horse->status
-                    ];
-
-                    if ($horse->details->scratched) {
-                        //SCRATCH!! ';
-                        $horseLog['scratched'] = 'true';
-                        /*
-                        //disable ALL RACES
-                        $this->Result->Race->updateAll(
-                            array('enable'  => 0, 'close_time' => "'" . date('H:i:s') . "'"),
-                            array('Race.id' => $racesSons));
-
-                        */
-                        array_push($retiresBov, $horse->details->saddleNumber);
-                    }
-
-                    $raceLog['Horses'][] = $horseLog;
-                }
-
-                $raceFound = true;
-            } 
-        }
-
-        pr($retiresBov);
+        $bovadaMod = ClassRegistry::init('Bovada');  
+        
+        $raceLog   = $bovadaMod->getByRace($bovadaNick, $raceNumber, $raceId);
 
         pr($raceLog);
-
         die();
 
         //if racenotfound
