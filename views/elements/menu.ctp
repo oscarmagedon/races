@@ -176,7 +176,7 @@ $menu = array ( 1 => array(
                     , 
                     'Vender' => array(
                                 'controller' => 'tickets',
-                                'action'     => 'add'
+                                'action'     => 'bet'
                     )
                     ,
                     'Ventas' => array(
@@ -230,7 +230,7 @@ $menu = array ( 1 => array(
                         ,
                         'Apostar'  => array(
                                     'controller' => 'tickets',
-                                    'action'     => 'add')
+                                    'action'     => 'bet')
                         ,
                         'Tickets'  => array(
                                     'controller' => 'tickets',
@@ -266,7 +266,7 @@ $menu = array ( 1 => array(
     ); 
 
 // == > PATCHES
-
+/*
 // online 
 if ( $authUser['profile_id'] == 11 ) {
     $menu[4]['Carreras']['action'] = 'viewnew';
@@ -278,7 +278,7 @@ if ( $authUser['profile_id'] == 10 ) {
     $menu[2]['Carreras']['action'] = 'viewnew';
     //$menu[4]['Apostar']['action']  = 'bet';
 }
-
+*/
 // == > PATCHES 
 
 ?>

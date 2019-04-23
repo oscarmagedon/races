@@ -10,31 +10,27 @@ class ApidatasController extends AppController {
         parent::beforeFilter();
 
         $this->Authed->allow([
-            //'proservtracks',
-            //'proservbytrack',
-            //'deletebytrack','proresults', 'saveresults'
+            'checkraces',
+            'checkresults',
+            'checkbovada'
         ]);
     }
 
-
     public function isAuthorized()
     {
+        $ret = false;
 
-        $ret = true;
-        
         $actions_root = [
-            'admin_proservtracks',
-
+            'admin_index',
             'admin_addbytrack',
-
             'admin_nextones',
-
             'admin_deletebytrack',
             'admin_proservbytrack',
             'admin_bovada',
-            'admin_proresults','admin_saveresults','admin_resetrace'
-        ];
-        
+            'admin_proresults',
+            'admin_saveresults',
+            'admin_resetrace'
+        ];     
 
         if($this->isRoot() && in_array($this->action, $actions_root)){
             $ret = true;
@@ -43,29 +39,166 @@ class ApidatasController extends AppController {
         return $ret;
     }
 
+
+    public function checkraces()
+    {
+        $raceMod   = ClassRegistry::init('Race');
+        $protracks = ClassRegistry::init('Protracks');
+        $racePro   = ClassRegistry::init('Prorace');
+        $dbDate    = date('Y-m-d');
+        $trackPros = $protracks->getTracksIds();
+
+        $masterRaces = $raceMod->find('all',
+            [
+                'conditions' => [
+                    'race_date' => $dbDate,
+                    'center_id' => 1
+                ],
+                'fields'     => [
+                    'count(*) as co','Hipodrome.id',
+                    'Hipodrome.nick'],
+                'group'      => 'hipodrome_id',
+                'recursive'  => 1
+            ]
+        );
+
+        $nicksList = [];
+        foreach ($masterRaces as $race) {
+            array_push($nicksList, $race['Hipodrome']['nick']);
+        }
+        //nicks to save
+        $nicksAva = [];
+        foreach ($trackPros as $proNick => $vals) {
+            if ( !in_array($proNick, $nicksList)) {
+                $nicksAva [] = [
+                    'nick'    => $proNick,
+                    'dayEve'  => $vals['dayEve'],
+                    'country' => $vals['country'],
+                    'LOG'     => $racePro->exploreTrack(
+                        $proNick, 
+                        $vals['country'], 
+                        $vals['dayEve']
+                    )
+                ];
+            }
+            
+        }
+        //pr($nicksAva);
+        die();
+    }
+
+    public function checkresults()
+    {
+        $raceMod   = ClassRegistry::init('Race');
+        $proresult = ClassRegistry::init('Proresult');
+        $dbDate    = date('Y-m-d');
+
+        $nextRaces = $raceMod->find('all',
+            [
+                'conditions' => [
+                    'race_date'    => $dbDate,
+                    'center_id'    => 1,
+                    'ended'        => 0,
+                    'local_time <' => date('H:i:s')
+                ],
+                'fields' => [
+                    'Race.id','Race.number','Race.local_time',
+                    'Hipodrome.id','Hipodrome.name','Hipodrome.nick'
+                ],
+                'order' => ['local_time' => 'ASC']
+            ]
+        );
+        
+        foreach ( $nextRaces as $nrk => $race ) {
+            $nextRaces[$nrk]['Result'] = $proresult->saveResults(
+                $race['Race']['id'], 
+                $dbDate, 
+                $race['Hipodrome']['nick'], 
+                $race['Race']['number']
+            );
+        }
+        
+        //pr($nextRaces);
+        die();
+    }
+
+    public function checkbovada ()
+    {
+        $raceMod   = ClassRegistry::init('Race');
+        $bovadaMod = ClassRegistry::init('Bovada');
+        $dbDate    = date('Y-m-d');
+
+        $nextRaces = $raceMod->find('all',
+            [
+                'conditions' => [
+                    'race_date'    => $dbDate,
+                    'center_id'    => 1,
+                    'Race.enable'  => 1
+                ],
+                'fields' => [
+                    'Race.id','Race.number','Race.local_time',
+                    'Hipodrome.id','Hipodrome.name',
+                    'Hipodrome.nick','Hipodrome.bovada'
+                ],
+                'order' => ['local_time' => 'ASC'],
+                'limit' => 10
+            ]
+        );
+
+        foreach ( $nextRaces as $nrk => $race ) {
+            $nextRaces[$nrk]['Retires'] = $bovadaMod->getByRace(
+                $race['Hipodrome']['bovada'], 
+                $race['Race']['number'], 
+                $race['Race']['id']
+            );
+        }
+
+        //pr($nextRaces);
+        die();
+    }
+
+    /*
+    
+        ADMIN MODULES
+    
+    */
+
     public function admin_index()
     {
 
         $this->pageTitle = 'API Services';
     }
-    
-    /**
-     *
-     */ 
-    public function admin_proservtracks($dbDate = null, $fullMode = 0)
-    {   
-        //Y-m-d
-        $dbDate     = ($dbDate!=null)?$dbDate:date('Y-m-d');
+
+    //check only
+    public function admin_nextones()
+    {
         $protracks  = ClassRegistry::init('Protracks');
         $raceModel  = ClassRegistry::init('Race');
         $proFields  = $protracks->tracksFields;
+        $dbDate     = date('Y-m-d');
+        $usaDate    = $protracks::getUsaDate($dbDate);
+
+        $proTracks  = $protracks->getInfoTracks($usaDate);
+        $trackIds   = $protracks->getTracksIds();
+
+        $this->pageTitle = 'All Proservice today';
         
-        $usaDate = $protracks::getUsaDate($dbDate);
+        $this->set(compact('dbDate','usaDate','proTracks',
+            'proFields','trackIds'));
+    }
 
-        $proserviceTracks = $protracks->getInfoTracks($usaDate);
+    //check and click-to-save
+    public function admin_addbytrack()
+    {
+        $protracks  = ClassRegistry::init('Protracks');
+        $raceModel  = ClassRegistry::init('Race');
+        $proFields  = $protracks->tracksFields;
+        $dbDate     = date('Y-m-d');
+        $usaDate    = $protracks::getUsaDate($dbDate);
 
-        $trackIds = $protracks->getTracksIds();
-       
+        //$proTracks  = $protracks->getInfoTracks($usaDate);
+        $trackIds   = $protracks->getTracksIds();
+        
         $masterRaces = $raceModel->find('all',
             array(
                 'conditions' => [
@@ -87,56 +220,14 @@ class ApidatasController extends AppController {
                 'races' => $master[0]['co']
             ];
         }
-        $this->pageTitle = 'Tracks Proservice';
         
-        $this->set(compact('dbDate','usaDate','fullMode','proserviceTracks',
-            'proFields','trackIds','racesNick','title_for_layout'));
-    }
-
-    public function admin_addbytrack()
-    {
-
-    }
-
-    public function admin_nextones()
-    {
-
-    }
-
-    /**
-        SAVE RACES 
-    */
-    public function admin_proservbytrack($trackId, $country, $dayEve) 
-    {
+        $this->pageTitle = 'All Proservice today';
         
-        $raceApi  = ClassRegistry::init('Prorace');
-
-        $infoTrack = $raceApi->exploreTrack($trackId, $country, $dayEve, 20);
-        //echo json_encode($infoTrack);die();
-
-        $message = (count($infoTrack) - 1) . ' races saved.';
-
-        $this->Session->setFlash($message);
-        $this->redirect($this->referer());        
+        $this->set(compact('dbDate','usaDate','proTracks',
+            'proFields','trackIds','racesNick'));
     }
 
-    public function admin_deletebytrack($trackId)
-    {
-        $prorace = ClassRegistry::init('Prorace');
-
-        $message = $prorace->deleteByNick($trackId);
-
-        $this->Session->setFlash($message);
-
-        $this->redirect($this->referer());   
-    }
-    
-    /**
-        LOgged filter by htrack and date
-        
-        I have to split this in 2 different functions
-
-    */
+    /** RESULTS AND CLOSE*/
     public function admin_proresults($date = null, $htrack = null)
     {   
         $proresult = ClassRegistry::init('Proresult');
@@ -197,9 +288,35 @@ class ApidatasController extends AppController {
         $this->set(compact('date','usaDate', 'htracks', 'htrack', 'racesLog','bovadaCheck'));
     }
 
+    //SAVE RACES AND REDIRECT
+    public function admin_proservbytrack($trackId, $country, $dayEve) 
+    {
+        
+        $raceApi  = ClassRegistry::init('Prorace');
 
-    //test by raceId function 
-    public function admin_saveresults($raceId, $date, $nick,$number)
+        $infoTrack = $raceApi->exploreTrack($trackId, $country, $dayEve, 20);
+        //echo json_encode($infoTrack);die();
+
+        $message = (count($infoTrack) - 1) . ' races saved.';
+
+        $this->Session->setFlash($message);
+        $this->redirect($this->referer());        
+    }
+
+    //DELETE RACES BY NICK AND REDIRECT
+    public function admin_deletebytrack($trackId)
+    {
+        $prorace = ClassRegistry::init('Prorace');
+
+        $message = $prorace->deleteByNick($trackId);
+
+        $this->Session->setFlash($message);
+
+        $this->redirect($this->referer());   
+    }
+    
+    //TRY TO SAVES RESULTS AND REDIRECT 
+    public function admin_saveresults($raceId, $date, $nick, $number)
     {   
         if ($date == null) {
             $date = date('Y-m-d');
@@ -215,6 +332,7 @@ class ApidatasController extends AppController {
         $this->redirect($this->referer());  
     }
 
+    // NOT YET WORKING bUT REDIREct
     public function admin_resetrace($raceId)
     {
         $proresult = ClassRegistry::init('Proresult');
@@ -226,44 +344,24 @@ class ApidatasController extends AppController {
         $this->redirect($this->referer());  
     }
 
-
-    /*
-        Become this a BovadaLog and send it to a small 
-        view with the style created
-    */
-
+    //bovada all check
     public function admin_bovada($bovadaNick)
     {
         $bovadaMod = ClassRegistry::init('Bovada');  
-        
         $bovadaLog = $bovadaMod->getAllInfo($bovadaNick);
-
-        $urlCheck  = $bovadaMod->createBovadaUrl($bovadaNick);        
-
+        $urlCheck  = $bovadaMod->createBovadaUrl($bovadaNick); 
         $this->pageTitle = 'Bovada all races';        
 
         $this->set(compact('bovadaLog','urlCheck'));
     }
 
+    //checks bovada race and returns!
     public function admin_bovadarace($bovadaNick, $raceNumber, $raceId)
     {
         $bovadaMod = ClassRegistry::init('Bovada');  
-        
         $raceLog   = $bovadaMod->getByRace($bovadaNick, $raceNumber, $raceId);
 
-        pr($raceLog);
-        die();
-
-        //if racenotfound
-            //set raceid suspended and log operation
-
-        //else
-        //check race retires
-        //compare and add the new ones
-        //if retires new were added add operations
-
-        //$this->pageTitle = 'Bovada all races';
-
-        //$this->set(compact('bovadaLog','urlCheck'));
+        $this->Session->setFlash('Bovada retiros carr. ID ' .$raceId);
+        $this->redirect($this->referer());  
     }
 }

@@ -58,7 +58,7 @@ class Prorace extends Apidata {
 		//complete data
 		$infoLog['RaceSys']['Race']['center_id']    = $centerId;
 		$infoLog['RaceSys']['Race']['hipodrome_id'] = $htId;
-		$infoLog['RaceSys']['Race']['race_time']    = $raceTime; 
+		$infoLog['RaceSys']['Race']['race_date']    = date('Y-m-d'); 
 		$infoLog['RaceSys']['Race']['race_time']    = $raceTime; 
 		$infoLog['RaceSys']['Race']['local_time']   = $raceTime; 
 		//$infoLog['RaceSys']['Race']['local_time']   = $localTime; 
@@ -128,13 +128,17 @@ class Prorace extends Apidata {
 
                 //$raceStat = $raceInfo;
                 if(!empty ($htrack)) {
+                	
                 	$raceStat = $this->saveRaceSys($raceInfo, $hipodId, $hipodGmt, $isWinter);
                 	
                 	//Oeration Info
                 	$operationMeta .= $raceStat['RaceSys']['Race']['id']. ": ";
                 	$operationMeta .= $raceStat['RaceSys']['Race']['number']. " (";
                 	$operationMeta .= count($raceStat['RaceSys']['Horse']). ")<br>";
+                	
+                	//$raceStat = ['no-saving'=>'On test'];
                 } else {
+
                 	$raceStat = ['error'=>'No Hipodrome'];
                 	$raceInfo['error'] = 'No htrack';
                 }

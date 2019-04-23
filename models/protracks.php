@@ -32,20 +32,25 @@ class Protracks extends Apidata {
 		return $this->normalTracks($jsonResponse);
 	}
 
-	public function getTracksIds($country = "USA")
+	public function getTracksIds()
 	{
+		$countries  = ['USA','CAN','NZL'];//drop nzl
 		$fullUrl    = $this->proservBase . $this->paramTracks;
 		$jsonTracks = file_get_contents($fullUrl);
 		$fullInfo   = json_decode($jsonTracks);
 		$trackIds   = [];
 
         foreach ($fullInfo->data->trackList as $track) {
-            if ($country == $track->country) {
+            //if ($country == $track->country) {
+	        
+	        if ( in_array($track->country, $countries) ){
+
 	            if(!isset($trackIds[$track->trackId])) {
 	                //array_push($trackIds, $track->trackId);
 	            	$trackIds[$track->trackId] = [
 	            			'country' => $track->country,
-	            			'dayEve'  => $track->dayEvening
+	            			'dayEve'  => $track->dayEvening,
+	            			'name'    => $track->trackName
 	            	];
 	            }	
             }

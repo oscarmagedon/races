@@ -120,7 +120,8 @@
 		 				echo $html->link('Check', [
 		 					'action' => 'bovadarace',
 		 					$race['Info']['Hipodrome']['bovada'],
-		 					$race['Info']['Race']['number']
+		 					$race['Info']['Race']['number'],
+		 					$race['Info']['Race']['id']
 		 				]) 
 						?>
 					</td>

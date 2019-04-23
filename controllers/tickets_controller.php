@@ -123,16 +123,17 @@ class TicketsController extends AppController
 
         $hipods = $this->Ticket->Race->getHorsetracksByDay(
                         array($since,$until), 
-                        $this->authUser['center_id'],0,true);
+                        1,0,true);
 
         // PATCH-admonline
-
+        /*
         if ( $this->authUser['profile_id'] == 10 ) {
             $hipods = $this->Ticket->Race->getHorsetracksByDay(
                         array($since,$until), 
                         1,0,true);
 
         }
+        */
         // PATCH-admonline
 
         $this->Ticket->unbindModel(array('belongsTo'=>array('PlayType')),false);
@@ -155,9 +156,9 @@ class TicketsController extends AppController
 
         // PATCH-admonline
 
-        if ( $this->authUser['profile_id'] == 10 ) {
-            $cid = 1;
-        }
+        //if ( $this->authUser['profile_id'] == 10 ) {
+        //$cid = 1;
+        //}
         // PATCH-admonline
         
         if ( $since == null ) {
@@ -168,7 +169,7 @@ class TicketsController extends AppController
         $totals    = $this->Ticket->getTotalSales($since,$until,$cid,null,$raceid);
         $profSales = $this->Ticket->getSalesProfiles($since,$until,$cid,$raceid);
         $profiles  = $this->Ticket->Profile->getPlayers($cid);
- 		$htracks   = $this->Ticket->Race->getHtracksByRange($cid, $since, $until);
+ 		$htracks   = $this->Ticket->Race->getHtracksByRange(1, $since, $until);
 
         $races = array();
         
@@ -176,7 +177,7 @@ class TicketsController extends AppController
             $races = $this->Ticket->Race->find('list',array(
                         'conditions' => array(
                             'race_date'    => $since,
-                            'center_id'    => $cid,
+                            'center_id'    => 1,
                             'hipodrome_id' => $htrackid),
                         'fields' => 'number'));
         }
@@ -726,14 +727,16 @@ class TicketsController extends AppController
 		$unitNac = $config->get_unit_value($this->authUser['center_id']);
 		$unitInt = $config->get_unit_value($this->authUser['center_id'],true);
 		$hipods  = $this->Ticket->Race->getHorsetracksByDay($date, 
-                        $this->authUser['center_id'],0,true);
+                        1,0,true);
 
         //new patch online only
+        /*
         if ($this->authUser['profile_id'] == 11) {
             $unitNac = $config->get_unit_value($this->authUser['center_id']);
             $unitInt = $config->get_unit_value($this->authUser['center_id'],true);
             $hipods  = $this->Ticket->Race->getHorsetracksByDay($date,1,0,true);
         }
+        */
 
         //new patch
          

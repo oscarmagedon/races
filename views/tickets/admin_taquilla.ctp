@@ -136,7 +136,8 @@ foreach ($tickets as $ticket):
 			?>
 		</td>
 	</tr>
-<?php endforeach; ?>
+<?php endforeach; 
+?>
 </table>
 </div>
 <div class="paging">

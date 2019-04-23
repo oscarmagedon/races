@@ -76,8 +76,8 @@ class Proresult extends Apidata {
 		//$ticketMod  = new Ticket();
 
 		// operation START MONITORING insert
-		$operationMeta = "Proservice Check.". $nick .' '. $number;
-		$operMod->ins_op(3, 1, 'Result. Check', $raceId, $operationMeta);
+		//$operationMeta = "Proservice Check.". $nick .' '. $number;
+		//$operMod->ins_op(3, 1, 'Result. Check', $raceId, $operationMeta);
 
 		//GET results from URL and normalize		
 		$proservurl = $this->createProserviceResultsUrl($date, $number, $nick, 'USA');
@@ -85,43 +85,37 @@ class Proresult extends Apidata {
 		$resultLog  = ['Data' => $this->_normalizeResults($jsonResp)];
 		
 		if (isset($resultLog['Data']['Error'])){
-			die($resultLog['Data']['Error']);
+			return $resultLog['Data']['Error'];
 		}
 
-		
 		$resultLog['Results'] = $this->_getHorsesInfo($raceId,$resultLog['Data']['Results']);
 
-		$resultLog['Saved']   = $hrsTksMod->saveWinnersPrizes($raceId, $resultLog['Results']);
+		$resultLog['Saved']   = $hrsTksMod->saveWinnersPrizes($raceId, $resultLog['Results']['Results']);
 		
+		//pr($resultLog);
+		//die();
+
 		//save results
 		$resultMod->saveAll($resultLog['Results']);
 
 		//after saving results update RACE and special-prizes:
 		$raceMod->setRaceEnded($raceId,$resultLog['Data']['Specials']);
 
-		/*
-
+		
 		//SETS RETIRED AND RETURNS UNITS
 		//...
-
-		//PUT THE REST OF THE HORSES AS LOSERS
 		
-		$losers = $resultLog['HorseIds'];
-		foreach ($resultLog['Results'] as $winner) {
-			unset($losers[$winner['horse_id']]);
-		}
+		//PUT THE REST OF THE HORSES AS LOSERS
 		$hrsTksMod->updateAll(
 			['horses_tickets_status_id' => 3, 'prize' => 0],
-			['horse_id' => $losers]
-		);	
-		//pr($losers);
-		*/
-
-		//pr($resultLog);
-		//die();
+			['horse_id' => array_keys($resultLog['Results']['Losers'])]
+		);
+		
 
 		//set special prizes
-        $hrsTksMod->saveSpecialPrizes($resultLog['Results'], $resultLog['Data']['Specials']);
+        $hrsTksMod->saveSpecialPrizes(
+        	$resultLog['Results']['Results'], 
+        	$resultLog['Data']['Specials']);
         //die();
 
 		// operation insert!!
@@ -163,9 +157,11 @@ class Proresult extends Apidata {
 			unset($result['number']);
 			//result to save
 			$results[]   = $result;
-		}
+			//unset to create losers
+			unset($horsesIds[$result['horse_id']]);
+		}	
 
-		return $results;
+		return ['Results' => $results , 'Losers' => $horsesIds];
 
 	}
 

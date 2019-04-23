@@ -7,18 +7,15 @@ var load_img = 'Cargando... <?php
 var thisview = '<?php echo $html->url(["action"=>$this->params['action'] ])?>';
 
 $(function() {
+	$("#date").attr('readonly',true).datepicker({dateFormat:"yy-mm-dd"});
+	$("#date").datepicker();
 	
-	$("#date")
-	.attr('readonly',true)
-	.datepicker({dateFormat:"yy-mm-dd"});
-	
-	$("#date").change(function(){
-		location = thisview + "/" + $(this).val();
-	});
-
-	$("#hipodrome_id").change(function(){
-		location = thisview +"/"+ $("#date").val() +"/"+ $(this).val();
-	});
+	$("#filt").click(function(){
+		var date = $("#date").val();
+		var hipo = $("#hipodrome_id").val();
+		
+		location = thisview + "/" + date + "/" + hipo;
+	});	
  
 });	
 </script>
@@ -38,6 +35,7 @@ $(function() {
 	<td><?php 
 		echo $form->input('hipodrome_id',array('options'=>$hipodromes,'value'=>$htrackid,'empty'=>array(0 => 'Seleccione'),'label'=>"Hipodromo",'class'=>'filter_input'))
 	?></td>
+	<td><?php echo $form->button('Filtrar',array('id'=>'filt')) ?></td>
 </tr>
 </table>
 <p>

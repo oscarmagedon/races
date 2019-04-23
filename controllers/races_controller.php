@@ -28,18 +28,18 @@ class RacesController extends AppController {
         );
 
 		$actions_adm = array(
-            "admin_view","admin_viewnew",
+            "admin_view","admin_viewdep",
             "admin_list_ajax","admin_restrict",
             "admin_data_pick", "admin_getmygmt"
         );
 		
         $actions_taq = array(
-            "admin_view","admin_viewnew",
+            "admin_view","admin_viewdep",
             "admin_list_ajax","admin_data_pick"
         );
 
         $actions_onl = array(
-            "admin_view","admin_viewnew",
+            "admin_view","admin_viewdep",
             "admin_list_ajax","admin_data_pick"
         );
 		
@@ -383,7 +383,7 @@ class RacesController extends AppController {
 		$this->set(compact('hipodromes'));
 	}
 	
-	function admin_view($date = null, $htrackid = 0){
+	function admin_viewdep($date = null, $htrackid = 0){
 		
         if($date == null)
 			$date = date('Y-m-d');
@@ -421,7 +421,7 @@ class RacesController extends AppController {
         
 	}
 	
-    function admin_viewnew($date = null, $htrackid = 0){
+    function admin_view($date = null, $htrackid = 0){
         
         if($date == null)
             $date = date('Y-m-d');
@@ -457,7 +457,7 @@ class RacesController extends AppController {
         
         $this->set(compact('races','hipodromes','results','date','htrackid'));
         
-        $this->render('admin_view');
+        //$this->render('admin_view');
     }
 
 

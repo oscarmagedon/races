@@ -45,11 +45,11 @@ if (!empty ($results[$this->race['Race']['id']])) {
             </td>
             <td style="text-align: right">
                 <?php 
-                echo $horse['number'];
+                echo isset($horse['number'])?$horse['number']:'-';
                 ?>
             </td>
             <td style="text-align: left">
-                <?php echo $horse['name'] ?>
+                <?php echo isset($horse['name'])?$horse['name']:'-'; ?>
             </td>
             <td>
                 <?php
