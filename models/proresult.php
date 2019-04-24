@@ -96,7 +96,7 @@ class Proresult extends Apidata {
 		//die();
 
 		//save results
-		$resultMod->saveAll($resultLog['Results']);
+		$resultMod->saveAll($resultLog['Results']['Results']);
 
 		//after saving results update RACE and special-prizes:
 		$raceMod->setRaceEnded($raceId,$resultLog['Data']['Specials']);
@@ -122,6 +122,8 @@ class Proresult extends Apidata {
 		$operationMeta = "Proservice End." . $resultLog['Saved'] . ' tks. '. $nick .' '. $number;
 		$operMod->ins_op(3, 1, 'Resultados', $raceId, $operationMeta);
 
+		//die();
+		
 		//return log
 		return $resultLog;
 	}

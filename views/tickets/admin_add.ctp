@@ -1,6 +1,17 @@
 <?php
 //pr($authUser)
 ?>
+<!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = 'ed61800b774ab98e8ee687382bfaf3706198d063';
+window.smartsupp||(function(d) {
+  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+  c.type='text/javascript';c.charset='utf-8';c.async=true;
+  c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
 <script>
 var load_img    = '<?= $html->image("loading_small.gif",array("alt"=>"Esperando..."))?>',
     load_races  = '<?= $html->url(array("controller"=>"races","action"=>"list_ajax"))?>',
@@ -28,9 +39,9 @@ $(function(){
 	
     //ATTENTION box
 	//message = "Las jugadas EXA, TRI y SUP implican un orden en su eleccion";
-	var message = 'Carrera preselecc.: HORA PROXIMA';
+	var message = 'Próxima Carrera Seleccionada';
 	if ( race != 0 ) {
-		message = 'Carrera preselecc.: ENLACE EXTERNO';
+		message = 'Ultimo Racetrack Seleccionado';
         $("#TicketRaceId").val(race);
         change_race(race);
     } else {
@@ -47,7 +58,8 @@ $(function(){
 	$("#play_types button").button().click(function(){
 		$("#play_types button").removeClass('button-clicked');
 		$(this).addClass('button-clicked');
-		$("#TicketPlayTypeId").val($(this).attr('id'));
+		
+        $("#TicketPlayTypeId").val($(this).attr('id'));
 		$("#play_name").html($(this).attr('title'));
 		to_set_details($(this).attr('id'));
 		
@@ -57,6 +69,10 @@ $(function(){
 		});
 		reset_positions();
 		co = 0;
+
+        //console.log('play_type_id');
+        //console.log($("#TicketPlayTypeId").val());
+
 		return false;
 	});
     
@@ -92,7 +108,8 @@ $(function(){
     
 	$("#betting").button({icons: {primary: "ui-icon-circle-check"}}).css('width','120px').click(
 		function(){
-			var val = true;
+			var val      = true,
+                playType = $("#TicketPlayTypeId").val();
 			
 			if($("#TicketEach").val() == ""){
 				err_line(2,"Debe introducir Unidades",$("#mess_bet"));
@@ -108,7 +125,47 @@ $(function(){
                 err_line(2,"El PIN del ONLINE es obligatorio.",$("#mess_bet"));
 				val = false;
             }
-			
+
+            //exacta boxes 
+            if ( playType == 7 ) {
+                if ($("#1_positioner").find('div.added').length == 0 
+                    ||
+                    $("#2_positioner").find('div.added').length == 0) {
+
+                    err_line(2,"EXACTA requiere caballos en todas las boxes.",$("#mess_bet"));
+                    val = false;       
+                }
+            }
+
+            //trifecta boxes 
+            if ( playType == 8 ) {
+                if ($("#1_positioner").find('div.added').length == 0 
+                    ||
+                    $("#2_positioner").find('div.added').length == 0
+                    ||
+                    $("#3_positioner").find('div.added').length == 0) {
+
+                    err_line(2,"TRIFECTA requiere caballos en todas las boxes.",$("#mess_bet"));
+                    val = false;       
+                }
+            }
+
+            //supfecta boxes 
+            if ( playType == 9 ) {
+                if ($("#1_positioner").find('div.added').length == 0 
+                    ||
+                    $("#2_positioner").find('div.added').length == 0
+                    ||
+                    $("#3_positioner").find('div.added').length == 0
+                    ||
+                    $("#4_positioner").find('div.added').length == 0) {
+
+                    err_line(2,"SUPERF. requiere caballos en todas las boxes.",$("#mess_bet"));
+                    val = false;       
+                }
+            }
+            
+            
 			if(val == true){
 				$(this).parents('form').submit();
                 $(".loadwait").show();
@@ -145,6 +202,7 @@ $(function(){
 		
 		return false;
 	});
+  
     
     
     $('.each-list').change( function () {
@@ -158,7 +216,6 @@ $(function(){
     
 });
 </script>
-
 <style>	
     .autotaq-pin {
         margin: 4px;
@@ -202,19 +259,28 @@ $(function(){
         width: 60px;
     }
     .number-key:hover{
-        background-color: #BBB; 
+        background-color: #BBB;
+      
     }
+  .reportetkt {
+    display: none;
+    width: 320px;
+    margin: 0, 0, 0, 0;
+   }
 	@media only screen
 and (min-device-width : 320px)
 and (max-device-width : 768px) {
 /* Layout */
 
 .oculto {display:none}
+.boton { width: 120px; padding-top: 10px; padding-bottom: 10px; margin-top: -10px;	}
 	
 	}
-</style>
+</style> 
+   --ATENCION NUEVA UNIDAD INTERNACIONAL BsS. 500 PARA USUARIOS EN VENEZUELA--
+    Hoy Martes estamos realizando pruebas a todos los servicios por favor no realizar apuestas..
 <div class="tickets_form">
-	<div id="titl">Fecha<?php echo ": ".$dtime->date_spa_mon_abr(date("Y-m-d")); ?></div>
+ 	<div id="titl">Fecha<?php echo ": ".$dtime->date_spa_mon_abr(date("Y-m-d")); ?></div>
  	<div id="mess_bet"></div>
  	<?php echo $form->create('Ticket',array('action'=>'add'));?>
  	<div id="div_bet">
@@ -223,19 +289,22 @@ and (max-device-width : 768px) {
  				<!--  Pr&oacute;ximas Carreras:   -->
 	 			<?php 
 	 			echo $form->input('Ticket.race_id',
-	 				array('options' => $nextones,'style'=>'font-size:1.4em; height:30px; width:200px;',
-                        'empty' => array(0 => 'Seleccione'),'label'=>''))
+	 				array('options' => $nextones,'style'=>'width:200px;',
+                        'empty' => array(0 => 'Select Racetrack'),'label'=>''))
 	 			?>
  			</div>
             
  			<div class="divs_right plays">
+            
  				<div id="play_types">
+          <h4 class="oculto" style="color: blue;">Apuestas Directas</h4>
  					<button id="1" title="WIN">W</button>
  					<button id="2" title="PLACE">P</button>
  					<button id="3" title="SHOW">S</button>
  					<button id="4" title="WIN PLACE">WP</button>
  					<button id="5" class="oculto" title="WIN SHOW">WS</button>
  					<button id="6" title="WIN PLACE SHOW" >WPS</button>
+          <h4 class="oculto" style="color: blue;">Apuestas Exóticas</h4>
  					<button id="7" class="oculto" title="EXACTA">EXA</button>
  					<button id="8" class="oculto" title="TRIFECTA">TRI</button>
  					<button id="9" class="oculto" title="SUPERFECTA">SUP</button>
@@ -243,16 +312,18 @@ and (max-device-width : 768px) {
 		 		<?php echo $form->input('play_type_id',array('type'=>'hidden')) ?>
  			</div>
  			<div class="divs_right resumen">
-				<span style="float:left">Jugada:&nbsp;</span>
+				<span style="float:left">Tipo de Apuesta:&nbsp;</span>
  				<span id="play_name" style="float: left; color: blue; font-size:110%">NINGUNA</span>
- 				<span style="float:left">&nbsp;Posicion:</span>	
-				<div id="horse_set" style="width:220px;">
- 					NINGUNO
+ 				<div id="horse_set" style="width:220px;">
+ 				<h4 style="color: red;">Seleccione Apuesta Exótica</h4>
  				</div>
  			</div>
  			<div id="lil_butns">
-				<button id="next">PROX.</button>
-				<button id="boxing">BOX</button>
+        
+				<button id="next">SIGUIENTE POSICION</button>
+        <h6 style="color: blue;">PROXIMA POSICION</h6>
+				<button id="boxing">COMBINAR TODOS</button>
+        <h6 style="color: blue;">BOX CON TODOS</h6>
 			</div>
   		</div>
  		<div id="div_horses">
@@ -264,7 +335,7 @@ and (max-device-width : 768px) {
             ?>
                 <div class="balance-part">
                     <span class='title-balance'>Balance:</span> 
-                    <span class='amo-balance'>
+                    <span style="color: blue;" class='amo-balance'>
                         <?php echo number_format($balance,0,',','.') ?>
                     </span>
                 </div>
@@ -274,8 +345,8 @@ and (max-device-width : 768px) {
             <div class="units-section">
  				 
  				<?php
-                echo $form->input('each',array('label'=>'Inserte:','div' => false,
-                        'class'=>'each-field','autocomplete'=>'off'));
+                echo $form->input('each',array('label'=>'Inserte o Seleccione','div' => false,
+                        'class'=>'each-field','autocomplete'=>'off','default' => '1'));
                 
                 echo $form->input('eachlist',array('label'=>false,'div' => false,
                         'class'=>'each-list','options' => $eachUnits,'empty' => 'Unids.'));
@@ -321,9 +392,22 @@ and (max-device-width : 768px) {
                     </div>
                     
                 </div>
-                
-                <button id="betting" title="Apostar">Crear Ticket</button>
-                
+                <?php
+            //AUTOTAQ CONFIRM WINDOW
+            if ($authUser['role_id'] == 5) {
+            ?>
+            
+            <div class="confirm-sect">
+                <button id="betting" title="Apostar" onclick="javascript:document.getElementById('betting').style.visibility = 'hidden';">Crear Ticket </button> 
+            	<!--  onclick="javascript:imprSelec('reportetkt')"   -->  
+            </div>
+            <?php
+            } else {
+            ?>
+                <button id="betting"  title="Apostar" class="boton" onclick="javascript:document.getElementById('betting').style.visibility = 'hidden';">Crear Ticket</button>
+            <?php
+            }
+            ?>
                 <div class="loadwait">
                     Espere...
                     <?php echo $html->image('loading_small.gif') ?>
@@ -337,3 +421,5 @@ and (max-device-width : 768px) {
  	</div>
 <?php echo $form->end(); ?>
 </div>
+
+ 

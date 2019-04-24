@@ -67,13 +67,21 @@ function change_race(race_id,pre){
 				var img = $(this).find('.ui_check');
 				
 				if(chk.attr('checked') != "checked"){
+					//WPS
 					if(typeBet < 7){
 						chk.attr('checked',true);
 						img.addClass('ui_checked');
+					//SPECIALS
 					}else{
 						hnum = chk.parents('.row_horse').find('.num_horse').attr('id');
 						hid = chk.attr('value');
 						put_position(hnum,hid);
+
+						//
+						//$('.horse_check').each(function(){
+							//console.log($(this).attr('name'));
+						//})
+
 					}
 					co = co + 1;
 				}else{
