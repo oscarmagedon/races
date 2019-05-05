@@ -889,24 +889,26 @@ class Ticket extends AppModel {
         return $main;
     }
     
-    function setOnlinePrizes($raceId,$centerId)
+    function setOnlinePrizes ($raceId, $centerId)
     {
         $account    = ClassRegistry::init("Account");
         $cnfModel   = ClassRegistry::init("Config");
         $isIntl     = $this->Race->isIntl($raceId);
-        $unitVal    = $cnfModel->get_unit_value($centerId,$isIntl);
         $pidsOnline = $this->Profile->getMyOnlines($centerId);
-        
-        $noPayed    = $this->find('all', array(
-                        'conditions' => array(
-                            'race_id'         => $raceId,
-                            'profile_id'      => array_keys($pidsOnline),
-                            'prize >'         => 0,
-                            'payed_status_id' => 1,
-                            'enable'          => 1
-                        ),
-                        'fields'     => array('id','number','prize','profile_id'),
-                        'recursive'  => -1 ) );
+        $unitVal    = $cnfModel->get_unit_value($centerId, $isIntl);
+        $conditions = [    
+			'race_id'         => $raceId,
+            'prize >'         => 0,
+            'payed_status_id' => 1,
+            'enable'          => 1,
+            'profile_id'      => array_keys($pidsOnline)
+        ];
+    
+        $noPayed = $this->find('all', [
+            'conditions' => $conditions,
+            'fields'     => ['id','number','prize','profile_id'],
+            'recursive'  => -1 
+        ]);
         
         //payment process
         foreach ($noPayed as $tk) {

@@ -27,6 +27,7 @@ class ApidatasController extends AppController {
             'admin_deletebytrack',
             'admin_proservbytrack',
             'admin_bovada',
+            'admin_bovadarace',
             'admin_proresults',
             'admin_saveresults',
             'admin_resetrace'
@@ -141,19 +142,27 @@ class ApidatasController extends AppController {
                     'Hipodrome.nick','Hipodrome.bovada'
                 ],
                 'order' => ['local_time' => 'ASC'],
-                'limit' => 10
+                'limit' => 30
             ]
         );
 
         foreach ( $nextRaces as $nrk => $race ) {
-            $nextRaces[$nrk]['Retires'] = $bovadaMod->getByRace(
-                $race['Hipodrome']['bovada'], 
-                $race['Race']['number'], 
-                $race['Race']['id']
-            );
+            
+            if ($race['Hipodrome']['bovada'] != '') {
+                
+                $nextRaces[$nrk]['Retires'] = $bovadaMod->getByRace(
+                    $race['Hipodrome']['bovada'], 
+                    $race['Race']['number'], 
+                    $race['Race']['id']
+                );    
+                
+            } else {
+                $nextRaces[$nrk]['Retires'] = 'No nick';
+            }
+            
         }
 
-        //pr($nextRaces);
+        pr($nextRaces);
         die();
     }
 
@@ -347,10 +356,12 @@ class ApidatasController extends AppController {
     //bovada all check
     public function admin_bovada($bovadaNick)
     {
-        $bovadaMod = ClassRegistry::init('Bovada');  
-        $bovadaLog = $bovadaMod->getAllInfo($bovadaNick);
-        $urlCheck  = $bovadaMod->createBovadaUrl($bovadaNick); 
-        $this->pageTitle = 'Bovada all races';        
+        if ( $bovadaNick != '' ) {
+            $bovadaMod = ClassRegistry::init('Bovada');  
+            $bovadaLog = $bovadaMod->getAllInfo($bovadaNick);
+            $urlCheck  = $bovadaMod->createBovadaUrl($bovadaNick);     
+            $this->pageTitle = 'Bovada all races';
+        }               
 
         $this->set(compact('bovadaLog','urlCheck'));
     }
@@ -361,7 +372,9 @@ class ApidatasController extends AppController {
         $bovadaMod = ClassRegistry::init('Bovada');  
         $raceLog   = $bovadaMod->getByRace($bovadaNick, $raceNumber, $raceId);
 
-        $this->Session->setFlash('Bovada retiros carr. ID ' .$raceId);
-        $this->redirect($this->referer());  
+        pr($raceLog);
+        die();
+        //$this->Session->setFlash('Bovada retiros carr. ID ' .$raceId);
+        //$this->redirect($this->referer());  
     }
 }

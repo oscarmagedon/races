@@ -21,6 +21,10 @@ class Bovada extends Apidata {
         $dataBovada = json_decode($dataString);
         $bovadaLog  = [];
 
+        if (!isset($dataBovada[0])) {
+        	return ['error'=>'Data not found'];
+        }
+
         foreach ($dataBovada[0]->events as $race) {
             
             $raceLog = [
@@ -58,7 +62,7 @@ class Bovada extends Apidata {
 		$retiresBov = [];
 
 		foreach ($bovadaInfo as $raceBovada) {
-			if ( $raceBovada['number'] == $raceNumber) {
+			if ( isset($raceBovada['number']) && $raceBovada['number'] == $raceNumber) {
 				$raceFound = true;
 				
 				foreach ($raceBovada['Horses'] as $horseb) {
@@ -77,7 +81,7 @@ class Bovada extends Apidata {
 
 		} else {
 			//get my retires and compare
-			$retires = $this->_checkRetires($raceId, $retiresBov, $raceNumber);
+			$retires = $this->_checkRetires($bovadaNick, $raceId, $retiresBov, $raceNumber);
 					
 			return ['retires' => $retires ,'retiresBovada'=>$retiresBov];
 		}
@@ -98,7 +102,7 @@ class Bovada extends Apidata {
 		$operMod->ins_op(4, 1, 'Bovada', $raceId, $operationMeta);
 	}
 
-	private function _checkRetires($raceId, $retiresBov, $raceNum)
+	private function _checkRetires($bovadaNick, $raceId, $retiresBov, $raceNum)
 	{
 		$horseMod = new Horse();
 		$newRets  = [];
@@ -119,21 +123,39 @@ class Bovada extends Apidata {
 
 		//RETIRE NEWS!!
 		if ( count($newRets) > 0) {
+			
+			$operationMeta = $bovadaNick .', '. $raceNum. 'a: ';
+			
 			//update horses
-			$horseMod->updateAll(
-				['enable' => 0],
+			$horseM = ClassRegistry::init('Horse');
+			$horseM->unbindModel(['belongsTo'=>['Race']]);
+			
+			foreach ($newRets as $newNumber) {
+				$horseM->updateAll(
+					['Horse.enable' => 0],
+					[
+						"Horse.number = $newNumber",
+						'Horse.race_id' => $raceId
+					]
+				);
+				unset($horseM->id);
+				
+				$operationMeta .= $newNumber .' ,';
+			}
+			/*
+			unset($horseM->id);
+
+			$horseM->updateAll(
+				['Horse.enable' => false],
 				[
-					'Horse.number'  => $newRets,
-					'Horse.race_id' => $raceId
+					'Horse.number' => $newRets,
+					'Horse.race_id'   => $raceId
 				]
 			);
-
+			*/
+			
 			//Operation
-			$operMod       = new Operation(); 
-			$operationMeta = $raceNum. 'a carr. Caballos: ';
-			foreach ($newRets as $nr) {
-				$operationMeta .= $nr .' -';
-			}
+			$operMod = new Operation(); 
 			$operMod->ins_op(4, 1, 'Bovada', $raceId, $operationMeta);
 		}
 

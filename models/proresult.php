@@ -73,7 +73,8 @@ class Proresult extends Apidata {
 		$resultMod  = new Result();
 		$operMod    = new Operation();
 		$hrsTksMod  = new HorsesTicket();
-		//$ticketMod  = new Ticket();
+		$ticketMod  = new Ticket();
+		$centerMod  = new Center();
 
 		// operation START MONITORING insert
 		//$operationMeta = "Proservice Check.". $nick .' '. $number;
@@ -117,6 +118,22 @@ class Proresult extends Apidata {
         	$resultLog['Results']['Results'], 
         	$resultLog['Data']['Specials']);
         //die();
+
+        //set OnlinePrizes
+        $centers = $centerMod->find('list'
+         /*,[
+        	'conditions' => [
+        		'Center.enable' => 1
+        	]
+        ]*/
+    	);
+        //pr($centers);
+        // foreach center
+        foreach ($centers as $ckey => $cname) {
+        	$ticketMod->setOnlinePrizes($raceId, $ckey);
+        	# code...
+        }
+        // ... set OnlinePrizes
 
 		// operation insert!!
 		$operationMeta = "Proservice End." . $resultLog['Saved'] . ' tks. '. $nick .' '. $number;

@@ -49,6 +49,9 @@ class HorsesTicket extends AppModel {
 			$prizes['exacta']//$prize
 		);
 
+		//pr($exaPrizes);
+		//die();
+
 		$triPrizes = $this->getTrifectaPrizes(
 			$winners[0]['horse_id'], //$win 
 			$winners[1]['horse_id'], //$place 
@@ -60,7 +63,7 @@ class HorsesTicket extends AppModel {
 
 		foreach ($specialPrizes as $ticketId => $prize) {
         	$ticketMod->updateAll(
-        		['prize' => $prize],
+        		['prize'     => $prize],//"($prize * `units`)"
         		['Ticket.id' => $ticketId]
         	);
         }        
@@ -87,6 +90,7 @@ class HorsesTicket extends AppModel {
 		//pr($exactas);
 		//die();
 		$boxedHorses    = $this->_getBoxesByTicket($exactas);
+		//pr($boxedHorses);
 		// 2 => EXACTA
 		return $this->_specialPrizeTickets($boxedHorses, 2, $prize);
 	}
@@ -254,14 +258,15 @@ class HorsesTicket extends AppModel {
             	$prizeBox = 0;
             	//if 2 or 3 or 4
             	if (count($box) == $type ) {
-            		$prizeBox = $prize;
+            		$prizeBox = $box[0]['units'];//($box[0]['units'] * ($prize / count($box)));
             	}
 
             	$sumTicket += $prizeBox;
             }
 
-            $prizes[$ticketId] = $sumTicket;
+            $prizes[$ticketId] = $sumTicket * $prize; //['pr'=>$prize,'sum'=>$sumTicket];
         }
+
         return $prizes;
 	}
 
@@ -276,18 +281,21 @@ class HorsesTicket extends AppModel {
             $boxn = $box['HorsesTicket']['box_number'];
             $hsid = $box['HorsesTicket']['horse_id'];
 			$ptid = $box['HorsesTicket']['play_type_id'];
+			$unts = $box['HorsesTicket']['units'];
 			
             if (!empty($boxesByTicket[$tkid]['boxes'][$boxn])) {
             	array_push($boxesByTicket[$tkid]['boxes'][$boxn],
             		[
 	                	'play_type_id' => $ptid,
-	                	'horse_id'     => $hsid
+	                	'horse_id'     => $hsid,
+	                	'units'        => $unts 
 	                ]
 	            );
             } else {
             	$boxesByTicket[$tkid]['boxes'][$boxn][0] = [
                 	'play_type_id' => $ptid,
-                	'horse_id'     => $hsid
+                	'horse_id'     => $hsid,
+                	'units'        => $unts
                 ];
             }
 		}
