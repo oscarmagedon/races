@@ -17,6 +17,8 @@ class HorsesTicket extends AppModel {
 	{
 		//SETS PRIZES
 		$this->_setPrizesWinners($winners);
+		//SET LOSERS
+		$this->_setLosersWinners($winners);
 
 		// GET TOTALS BY TICKET
 		$horsesIds = [];
@@ -40,18 +42,17 @@ class HorsesTicket extends AppModel {
 	//main calculator function for specials
 	public function saveSpecialPrizes($winners, $prizes)
 	{
-		$ticketMod  = new Ticket();
-
+		//$ticketMod  = new Ticket();
 		// $winners -- $data['Results'][0]
-		$exaPrizes = $this->getExactaPrizes(
+		//$exaPrizes = 
+		$this->getExactaPrizes(
 			$winners[0]['horse_id'], //$win 
 			$winners[1]['horse_id'], //$place 
 			$prizes['exacta']//$prize
 		);
 
-		//pr($exaPrizes);
 		//die();
-
+		/*
 		$triPrizes = $this->getTrifectaPrizes(
 			$winners[0]['horse_id'], //$win 
 			$winners[1]['horse_id'], //$place 
@@ -60,15 +61,65 @@ class HorsesTicket extends AppModel {
 		);
 		
 		$specialPrizes = $exaPrizes + $triPrizes;
-
+		
 		foreach ($specialPrizes as $ticketId => $prize) {
         	$ticketMod->updateAll(
         		['prize'     => $prize],//"($prize * `units`)"
         		['Ticket.id' => $ticketId]
         	);
-        }        
+        }
+
+		*/
+		
+		        
 	}
 
+
+	// special details on tickets
+	public function getSpecialDetails($ticketId,$typeBox = 2)
+	{
+		$lines = $this->find('all',[
+			'conditions' => [
+				'ticket_id' => $ticketId
+			],
+			'order' => [
+				'box_number','play_type_id'
+			]
+		]);
+
+		//echo count($lines);
+
+		$byBox  = [];
+		
+		foreach ($lines as $box) {
+			$boxn = $box['HorsesTicket']['box_number'];
+            
+            if (!empty($byBox[$boxn])) {	
+	            array_push($byBox[$boxn],$box['HorsesTicket']);
+	        } else {
+            	$byBox[$boxn] = [$box['HorsesTicket']];
+            }
+		}
+
+		$winner = [];
+		$losers = [];
+
+		foreach ($byBox as $boxNum => $htick) {
+            if ( $htick[0]['horses_tickets_status_id'] == 2 ) {
+	        	$winner['Box']   = $boxNum;
+	        	$winner['Prize'] = $htick[0]['prize'];
+	        	$winner['Bets']  = $htick;
+       			//unset winner from the rest
+       			// ...
+        	} else {
+	        	array_push($losers, $htick);
+	        }
+		}
+		return [
+				'Losers' => $losers, 
+				'Winner' => $winner
+			];	
+	}
 
 	//exacta ticket prizes
 	public function getExactaPrizes($win, $place, $prize)
@@ -90,9 +141,17 @@ class HorsesTicket extends AppModel {
 		//pr($exactas);
 		//die();
 		$boxedHorses    = $this->_getBoxesByTicket($exactas);
-		//pr($boxedHorses);
+
+		$newBoxed       = $this->_setBoxesPrizes($exactas);
+		
+		$newBoxedExas = $this->_getSpecialPrizes($newBoxed, 2);
+
+		//pr($newBoxedExas);
+		//only SET process and will replace next one
+		$this->_setSpecialPrizes($newBoxedExas, $prize);
+
 		// 2 => EXACTA
-		return $this->_specialPrizeTickets($boxedHorses, 2, $prize);
+		//return $this->_specialPrizeTickets($boxedHorses, 2, $prize);
 	}
 
 	//trifecta ticket prizes
@@ -164,8 +223,6 @@ class HorsesTicket extends AppModel {
 
         return $byTicket;
     }
-
-
 
 	//sets horses tickets statuses and prizes
 	private function _setPrizesWinners($winners)
@@ -245,6 +302,27 @@ class HorsesTicket extends AppModel {
 		);
 	}
 
+	//
+	private function _setLosersWinners($winners)
+	{
+		//  ---- S  E  G  U  N  D  O    C  A  B  A  L  L  O   -------
+		$this->updateAll(
+			[ 'horses_tickets_status_id' => 3 ],
+			[
+				'horse_id'     => $winners[1]['horse_id'], 
+				'play_type_id' => 1	
+			]
+		);
+
+		//  ---- T  E  R  C  E  R    C  A  B  A  L  L  O   -------
+		$this->updateAll(
+			[ 'horses_tickets_status_id' => 3 ],
+			[
+				'horse_id'     => $winners[2]['horse_id'], 
+				'play_type_id' => [1, 2]
+			]
+		);
+	}
 
 	//receives the arranged query 
 	//type of bet (amount of horses temp.)
@@ -268,6 +346,123 @@ class HorsesTicket extends AppModel {
         }
 
         return $prizes;
+	}
+
+	private function _getSpecialPrizes($boxed, $type)
+	{
+		$ticketPrizes = [];
+
+		foreach($boxed as $ticketId => $details){
+        	
+			$prizes = [
+				'WinIds' => [],
+				//'Losers' => [],
+				'Units'  => 0,
+			];
+
+            foreach($details['boxes'] as $box ){
+            	//$prizeBox = 0;
+            	//if 2 or 3 or 4
+            	if ( count($box) == $type ) {
+            		//$prizeBox = $box[0]['units'];
+            		//($box[0]['units'] * ($prize / count($box)));
+            		
+            		//these win-ids should be general 
+            		//query based on this race
+            		array_push($prizes['WinIds'], $box[0]['id']);
+            		array_push($prizes['WinIds'], $box[1]['id']);
+            		
+            		$prizes['Units'] += $box[0]['units'];
+
+            	} 
+            	/*
+            	else {
+            		foreach ($box as $bx) {
+            			array_push($prizes['Losers'], $bx['id']);
+            		}
+            	}
+            	*/
+            }
+            /*
+			this should not be done in this model
+            */
+            //$prizes['Units'] = $prizes['Units'] * $prize;
+
+            $ticketPrizes[$ticketId] = $prizes;
+        }
+        //return full prize
+        
+        return $ticketPrizes;
+	}
+
+	private function _setSpecialPrizes($prizes, $payed)
+	{
+		$ticketMod  = new Ticket();
+
+		foreach ($prizes as $ticketId => $horses) {
+			
+			//set winner and units
+			$this->updateAll(
+				[
+					'prize' => $horses['Units'],
+					'horses_tickets_status_id' => 2 
+				],
+				[
+					'id'  => $horses['WinIds'],
+				]
+			);
+
+			//set losers the rest of this type of bet
+			//on status pending
+			$this->updateAll(
+				[
+					'horses_tickets_status_id' => 3 
+				],
+				[
+					'horses_tickets_status_id' => 1,
+					'ticket_id' => $ticketId
+				]
+			);
+			
+			//set ticket prize
+			$ticketMod->updateAll(
+				[
+					'Ticket.prize' => $horses['Units'] * $payed
+				],
+				[
+					'Ticket.id' => $ticketId
+				]
+			);	
+		}
+
+		/*
+		Array
+			(
+			    [3558] => Array
+			        (
+			            [WinIds] => Array
+			                (
+			                    [0] => 12127
+			                    [1] => 12126
+			                )
+
+			            [Losers] => Array
+			                (
+			                    [0] => 12053
+			                    [1] => 12065
+			                    [2] => 12077
+			                    [3] => 12103
+			                    [4] => 12115
+			                    [5] => 12120
+			                    [6] => 12122
+			                    [7] => 12124
+			                    [8] => 12128
+			                    [9] => 12130
+			                )
+
+			            [Units] => 3
+			        )
+		*/
 	}
 
 	//receives the query result 
@@ -303,7 +498,39 @@ class HorsesTicket extends AppModel {
 		return $boxesByTicket;
 	}
 
+	private function _setBoxesPrizes($queryRes)
+	{
+		$boxesByTicket = [];
 
+		foreach ($queryRes as $box) {
+			$htid = $box['HorsesTicket']['id'];
+			$tkid = $box['HorsesTicket']['ticket_id'];
+            $boxn = $box['HorsesTicket']['box_number'];
+            $hsid = $box['HorsesTicket']['horse_id'];
+			$ptid = $box['HorsesTicket']['play_type_id'];
+			$unts = $box['HorsesTicket']['units'];
+			
+            if (!empty($boxesByTicket[$tkid]['boxes'][$boxn])) {
+            	array_push($boxesByTicket[$tkid]['boxes'][$boxn],
+            		[
+	                	'id'           => $htid,
+	                	'play_type_id' => $ptid,
+	                	'horse_id'     => $hsid,
+	                	'units'        => $unts 
+	                ]
+	            );
+            } else {
+            	$boxesByTicket[$tkid]['boxes'][$boxn][0] = [
+	                'id'           => $htid,
+                	'play_type_id' => $ptid,
+                	'horse_id'     => $hsid,
+                	'units'        => $unts
+                ];
+            }
+		}
+
+		return $boxesByTicket;	
+	}
 
 	/**
 			<< = = NEW BETTER FUNCTIONS

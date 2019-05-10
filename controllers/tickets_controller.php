@@ -1,4 +1,6 @@
 <?php
+App::Import('Model','HorsesTicket');
+
 class TicketsController extends AppController 
 {
 
@@ -21,7 +23,7 @@ class TicketsController extends AppController
 			"admin_index","admin_sales","admin_salesnew",
             "admin_follow","admin_fwraceprof",
             "admin_newfollow",'admin_followraces','admin_followhorses',
-            "admin_horses_details",
+            "admin_horses_details","admin_lines",
             "admin_anull","admin_create_proof","admin_onlinew","admin_payonline"
 		);
 		
@@ -136,7 +138,7 @@ class TicketsController extends AppController
         */
         // PATCH-admonline
 
-        $this->Ticket->unbindModel(array('belongsTo'=>array('PlayType')),false);
+        //$this->Ticket->unbindModel(array('belongsTo'=>array('PlayType')),false);
         
 		$this->paginate['conditions'] = $conds;
 		$this->paginate['order']      = array('created'=>'DESC');
@@ -1572,6 +1574,26 @@ class TicketsController extends AppController
 		$this->set('details',$details);
 		$this->set('pick',$pick);
 	}
+
+    public function admin_lines($ticketId, $raceId, $type)
+    {
+        //
+        $hrsTksMod  = new HorsesTicket();
+        //
+        $lines    = $hrsTksMod->getSpecialDetails($ticketId, $type);
+        
+        //
+        $horseMod = ClassRegistry::init('Horse');
+        $horses   = $horseMod->find('list',[
+            'conditions' => ['race_id' => $raceId],
+            'fields'     => 'number'
+        ]);
+
+        //pr($lines);
+        
+        //die();
+        $this->set(compact('lines','horses'));
+    }
     
     /**
      * == I N N E R S  ==> 

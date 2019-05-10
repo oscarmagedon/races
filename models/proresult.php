@@ -102,7 +102,6 @@ class Proresult extends Apidata {
 		//after saving results update RACE and special-prizes:
 		$raceMod->setRaceEnded($raceId,$resultLog['Data']['Specials']);
 
-		
 		//SETS RETIRED AND RETURNS UNITS
 		//...
 		
@@ -111,7 +110,6 @@ class Proresult extends Apidata {
 			['horses_tickets_status_id' => 3, 'prize' => 0],
 			['horse_id' => array_keys($resultLog['Results']['Losers'])]
 		);
-		
 
 		//set special prizes
         $hrsTksMod->saveSpecialPrizes(

@@ -73,6 +73,12 @@ echo $paginator->counter(array(
 	<th>Premio Bs</th>
 	<th>Estado</th>
 	<th>Detalles</th>
+	<?php 
+	//admonline
+	if ($authUser['id'] == 10) {
+		echo "<th>Nuevo</th>";
+	}
+	?>
 </tr>
 <?php
 $i = 0;
@@ -138,7 +144,7 @@ foreach ($tickets as $ticket):
 		</td>
 		<td class="currency">
             <span class="unit-amo">
-                <?php echo number_format($ticket['Ticket']['prize'],0,',','.') ?>
+                <?php echo number_format($ticket['Ticket']['prize'],2,',','.') ?>
             </span>
 		</td>
 		<td class="currency">
@@ -168,6 +174,35 @@ foreach ($tickets as $ticket):
 		<td>
 			<?php echo $html->link("Detalles", array('action'=>'#'),array('class'=>'detail','id'=>$ticket['Ticket']['id'])) ?>
 		</td>
+		<?php 
+		//admonline
+		if ($authUser['id'] == 10 && $ticket['PlayType']['id'] == 7) :
+			?>
+			<td>
+				<strong>
+					<?php 
+					echo $ticket['PlayType']['name'] 
+					?>
+				</strong>
+				<?php 
+				echo $html->link("Newdets", 
+					array('action' => '#'),
+					array(
+						'class'     => 'detailnew',
+						'id'        => $ticket['Ticket']['id'],
+						'data-race' => $ticket['Ticket']['race_id']
+					)
+				);
+				?>
+			</td>
+			
+			<?php 
+		//admonline
+		else:
+			echo "<td>-</td>";
+		endif
+		?>
+
 	</tr>
 <?php endforeach; 
 
@@ -192,6 +227,7 @@ pr($tickets);
 <script type="text/javascript">
 var load_img = 'Cargando... <?php echo $html->image("loading_small.gif",array("alt"=>"Esperando..."))?>';
 var url_details = '<?php echo $html->url(array("controller"=>"tickets","action"=>"horses_details"))?>';
+var specials = '<?php echo $html->url(array("controller"=>"tickets","action"=>"lines"))?>';
 
 $(function(){
 	$("#since").attr('readonly',true).datepicker({dateFormat:"yy-mm-dd"});
@@ -213,6 +249,17 @@ $(function(){
 		var tdelem = $(this).parents("td");	
 		tdelem.html(load_img);
 		tdelem.load(url_details + "/" + tik_id);
+		return false;
+	});
+
+	$(".detailnew").click(function(){
+		var tik_id = $(this).attr('id'),
+		    raceid = $(this).data('race'),
+		    tdelem = $(this).parents("td");	
+		
+		tdelem.html(load_img);
+		tdelem.load(specials + "/" + tik_id + "/" + raceid  + "/" + 2);
+		
 		return false;
 	});
 });

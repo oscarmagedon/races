@@ -334,8 +334,8 @@ class ApidatasController extends AppController {
         $proresult = ClassRegistry::init('Proresult');
 
         $results   = $proresult->saveResults($raceId, $date, $nick, $number);
-        //pr($results);
-        //die();        
+        pr($results);
+        die();        
         $this->Session->setFlash('Resultados en Carrera ID ' .$raceId);
 
         $this->redirect($this->referer());  
