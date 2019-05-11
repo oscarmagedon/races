@@ -2,7 +2,7 @@
 <?php 
 if (!empty($lines['Winner']) ):
 ?>
-	<div style="background-color: #ccc">
+	<div style="border-bottom: 1px solid #ccc">
 		<strong>Winner box <?php echo $lines['Winner']['Box'] ?></strong>, 
 		<em>Unidades: <?php echo $lines['Winner']['Prize'] ?></em>
 		<br>Comb.:[ 
@@ -21,7 +21,7 @@ if (!empty($lines['Winner']) ):
 endif
 ?>
 
-<div style="background-color: #DDD; max-width: 200px;">
+<div style="width: 300px;">
 	<strong>
 		<?php echo count($lines['Losers']) ?> losers:
 	</strong>

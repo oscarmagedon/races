@@ -73,12 +73,6 @@ echo $paginator->counter(array(
 	<th>Premio Bs</th>
 	<th>Estado</th>
 	<th>Detalles</th>
-	<?php 
-	//admonline
-	if ($authUser['id'] == 10) {
-		echo "<th>Nuevo</th>";
-	}
-	?>
 </tr>
 <?php
 $i = 0;
@@ -172,37 +166,32 @@ foreach ($tickets as $ticket):
 			?>
 		</td>
 		<td>
-			<?php echo $html->link("Detalles", array('action'=>'#'),array('class'=>'detail','id'=>$ticket['Ticket']['id'])) ?>
-		</td>
-		<?php 
-		//admonline
-		if ($authUser['id'] == 10 && $ticket['PlayType']['id'] == 7) :
-			?>
-			<td>
-				<strong>
-					<?php 
-					echo $ticket['PlayType']['name'] 
-					?>
-				</strong>
+			<strong>
 				<?php 
-				echo $html->link("Newdets", 
-					array('action' => '#'),
-					array(
-						'class'     => 'detailnew',
-						'id'        => $ticket['Ticket']['id'],
-						'data-race' => $ticket['Ticket']['race_id']
-					)
-				);
+				echo $ticket['PlayType']['name'] 
 				?>
-			</td>
-			
-			<?php 
-		//admonline
-		else:
-			echo "<td>-</td>";
-		endif
-		?>
+			</strong>
+			<div class="details-ticket">
+				<?php 
+				if (in_array($ticket['PlayType']['id'], [7, 8, 9])) {
+					echo $html->link("Detalles", 
+						array('action' => '#'),
+						array(
+							'class'     => 'detailnew',
+							'id'        => $ticket['Ticket']['id'],
+							'data-race' => $ticket['Ticket']['race_id']
+						)
+					);
+				} else {
+					echo $html->link("Detalles", 
+						array('action'=>'#'),
+						array('class'=>'detail','id'=>$ticket['Ticket']['id']));	
+				}
+			 
+				?>	
 
+			</div>	
+		</td>
 	</tr>
 <?php endforeach; 
 
@@ -246,7 +235,7 @@ $(function(){
 	
 	$(".detail").click(function(){
 		var tik_id = $(this).attr('id');
-		var tdelem = $(this).parents("td");	
+		var tdelem = $(this).parent(".details-ticket");	
 		tdelem.html(load_img);
 		tdelem.load(url_details + "/" + tik_id);
 		return false;
@@ -255,7 +244,7 @@ $(function(){
 	$(".detailnew").click(function(){
 		var tik_id = $(this).attr('id'),
 		    raceid = $(this).data('race'),
-		    tdelem = $(this).parents("td");	
+		    tdelem = $(this).parent(".details-ticket");	
 		
 		tdelem.html(load_img);
 		tdelem.load(specials + "/" + tik_id + "/" + raceid  + "/" + 2);

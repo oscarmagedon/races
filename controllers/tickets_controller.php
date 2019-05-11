@@ -1538,6 +1538,7 @@ class TicketsController extends AppController
     
 	function admin_horses_details( $ticket_id )
     {
+        /*
 		$tik = $this->Ticket->find('first',array(
 			'conditions' => array('Ticket.id' => $ticket_id),
 			'fields' => array(
@@ -1549,10 +1550,11 @@ class TicketsController extends AppController
 			'conditions' => array('id'=>$tik['Race']['hipodrome_id']),
 			'fields' => 'name','recursive' => -1
 		));
-			
+		*/	
 		$ticketHorse = ClassRegistry::init('TicketHorse');
 		$pick = "";
-		if($tik['Ticket']['play_type_id'] >= 7){
+		/*
+        if($tik['Ticket']['play_type_id'] >= 7){
 			if($tik['Ticket']['play_type_id'] == 19){
 				$pkdetails =  $this->Ticket->show_picks($ticket_id,true);	
 				$details = $pkdetails['details'];	
@@ -1564,15 +1566,18 @@ class TicketsController extends AppController
 			}	
 		}
 		else
-			$details = $ticketHorse->find_basics($ticket_id,true);
+
+        */
+			
+            $details = $ticketHorse->find_basics($ticket_id,true);
 			
         //pr($details);
 
-        $this->set('play_type',$tik['PlayType']['name']);
-		$this->set('number',$tik['Race']['number']);
-		$this->set('hipodrome',$hipo['Hipodrome']['name']);
+        //$this->set('play_type',$tik['PlayType']['name']);
+		//$this->set('number',$tik['Race']['number']);
+		//$this->set('hipodrome',$hipo['Hipodrome']['name']);
 		$this->set('details',$details);
-		$this->set('pick',$pick);
+		//$this->set('pick',$pick);
 	}
 
     public function admin_lines($ticketId, $raceId, $type)

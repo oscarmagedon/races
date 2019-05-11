@@ -1,11 +1,13 @@
 <div class="tickets view">
-	<b><?php 
+	<?php 
+	/*
 	if($play_type == "PICK"){
 		echo "$play_type $pick de $hipodrome";
 	}
 	else
 		echo "$play_type: $number &ordm; de $hipodrome"; 
-	?></b><br />
+	*/
+	?>
 	<table style="font-size:95%; margin-bottom: 0px" cellspacing="0">
 	<?php 
 	if(empty($details['Each'])){
