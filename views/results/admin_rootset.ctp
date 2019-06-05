@@ -10,6 +10,10 @@ echo $form->create('Result',array('action' => 'rootset'));
 
 echo $form->input("Race.id",array('value' => $raceId,'type'=>'hidden'));
 
+echo $form->input("Race.national",array('value' => $race['Hipodrome']['national'],'type'=>'hidden'));
+
+echo $form->input("Race.hipodrome",array('value' => $race['Hipodrome']['id'],'type'=>'hidden'));
+
 //verificar por data
 if (!empty($this->data)) {
 	echo $form->input("Result.0.id");

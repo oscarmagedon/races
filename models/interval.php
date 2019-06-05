@@ -42,6 +42,21 @@ class Interval extends AppModel {
         return $intervals;
         
     }
+
+    public function getCleanByHipo( $centerId, $htrackid, $lastRiders)
+    {
+        $intervals = $this->find('all',array(
+                            'conditions' => array("hipodrome_id" => $htrackid,
+                                                  'center_id'    => $centerId,
+                                                  'byHorses'     => $lastRiders),
+                            'fields'     => array('id','val_from','val_to',
+                                                'div_add','amount'),
+                            'order'      => array('val_from' => 'ASC')
+                     ));
+        
+        return $intervals;
+        
+    }
     
     function getFourHorses($cid)
     {

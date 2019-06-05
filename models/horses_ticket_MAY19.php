@@ -54,22 +54,14 @@ class HorsesTicket extends AppModel {
 			$prizes['exacta']//$prize
 		);
 
-		$this->getTrifectaPrizes(
+		//die();
+		/*
+		$triPrizes = $this->getTrifectaPrizes(
 			$winners[0]['horse_id'], //$win 
 			$winners[1]['horse_id'], //$place 
 			$winners[2]['horse_id'], //$show 
 			$prizes['trifecta']//$prize
 		);
-    
-   /*
-   $this->getSuperfectaPrizes(
-			$winners[0]['horse_id'], //$win 
-			$winners[1]['horse_id'], //$place 
-			$winners[2]['horse_id'],//$show
-      $winners[3]['horse_id'],//4to 
-			$prizes['superfecta']//$prize
-		);
-		//die();
 		
 		$specialPrizes = $exaPrizes + $triPrizes;
 		
@@ -182,50 +174,11 @@ class HorsesTicket extends AppModel {
                 ]
             ]
         ]);
-		$boxedHorses    = $this->_getBoxesByTicket($trifectas);
 
-		$newBoxed       = $this->_setBoxesPrizes($trifectas);
-
-		$newBoxedTris   = $this->_getSpecialPrizes($newBoxed, 3);
-
-		$this->_setSpecialPrizes($newBoxedTris, $prize);
+		$boxedHorses = $this->_getBoxesByTicket($trifectas);
+		// 3 => EXACTA
+		return $this->_specialPrizeTickets($boxedHorses, 3, $prize);
 	}
-  	
-  	/*
-  	public function getSuperfectaPrizes($win, $place, $show, $quarter, $prize)
-	{
-		$superfectas = $this->find('all',[
-            'conditions' => [
-                'OR' => [
-                	[
-                		'horse_id'     => $win,
-                		'play_type_id' => 12
-                	],
-                	[
-                		'horse_id'     => $place,
-                		'play_type_id' => 13
-                	],
-                	[
-                		'horse_id'     => $show,
-                		'play_type_id' => 14
-                	]
-                  [
-                		'horse_id'     => $quarter,
-                		'play_type_id' => 18
-                	]
-                ]
-            ]
-        ]);
-    $boxedHorses    = $this->_getBoxesByTicket($superfectas);
-
-		$newBoxed       = $this->_setBoxesPrizes($superfectas);
-		
-		$newBoxedSups = $this->_getSpecialPrizes($newBoxed, 4);
-		
-	
-		$this->_setSpecialPrizes($newBoxedSups, $prize);
-	}
-	*/
 
 	// CALCULATE TICKETS
     private function _setTicketsPrizes($prizesWinners)

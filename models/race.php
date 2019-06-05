@@ -302,8 +302,8 @@ class Race extends AppModel {
 					'conditions' => array('Race.id' => $id),
 					'fields'     => 
 							array(
-								'Race.id','Hipodrome.name','number','race_date',
-								'exacta','trifecta','superfecta'
+								'Race.id','Hipodrome.id','Hipodrome.name','Hipodrome.national',
+                                'number','race_date','exacta','trifecta','superfecta'
 							)));
 	}
     

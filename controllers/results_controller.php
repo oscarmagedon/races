@@ -95,7 +95,13 @@ class ResultsController extends AppController {
 	}
     
     function admin_rootset($raceId = null) {
-		
+
+        $horseIns    = ClassRegistry::init('Horse');
+        $horseTksMod = ClassRegistry::init('HorsesTicket');
+        $raceMod     = ClassRegistry::init('Race');
+        $centerMod   = ClassRegistry::init('Center');
+        $ticketMod   = ClassRegistry::init('Ticket');
+        
 		if (!empty($this->data)) {
 			//setear valores del data
            
@@ -115,11 +121,56 @@ class ResultsController extends AppController {
             } else {
                 unset($this->data['Result'][4]);
             }
+        
             
-            $this->data['Center']   = $this->authUser['center_id'];
-            //seteo de estatus y guardado de data ROOT
-            $this->Result->setRootResults($this->data);
-			//$this->Result->setResults($this->data);
+            //NEW MODEL FUNCTION works with services
+            $horseTksMod->saveWinnersPrizes(
+                $this->data['Race']['id'], 
+                $this->data['Result'],
+                $this->data['Race']['national']
+            );
+            
+            
+            if ($this->data['Race']['national'] == 1) {
+
+                $horses = $horseIns->find('count',[
+                    'conditions' => ['race_id' => $this->data['Race']['id']]
+                ]);
+
+                //ANOTHER FUNCTION that recalculates if NATIONAL
+                    
+                $lastRetires = (isset($this->data['Retired'])) ? count($this->data['Retired']) : 0;
+                $lastRiders  = $horses - $lastRetires;
+                // ##
+                $lastRiders = ($lastRiders >= 4 && $lastRiders <= 6) ? $lastRiders : 0;
+                $horseTksMod->recalculateIntervals(
+                    $this->data['Race']['id'],
+                    $this->data['Result'], 
+                    $this->data['Race']['hipodrome'], 
+                    $lastRiders
+                );              
+                    
+            }
+            
+            //save results
+            $this->Result->saveAll($this->data['Result']);
+            //ended and specials    
+            $raceMod->setRaceEnded($this->data['Race']['id'],$this->data['Special']);
+            //pr($this->data);
+            //die();
+            //$this->data['Center'] = $this->authUser['center_id'];
+            //OLD:: seteo de estatus y guardado de data ROOT
+            //$this->Result->setRootResults($this->data);
+			
+            //set OnlinePrizes
+            $centers = $centerMod->find('list');
+            //pr($centers);
+            foreach ($centers as $ckey => $cname) {
+                $ticketMod->setOnlinePrizes($this->data['Race']['id'], $ckey);
+            }
+            // ... set OnlinePrizes
+
+            //$this->Result->setResults($this->data);
             $operationModel = ClassRegistry::init('Operation');
 			//guardar log operaciones
 			$operationModel->ins_op(3,$this->authUser['profile_id'],"Resultados",
@@ -128,7 +179,7 @@ class ResultsController extends AppController {
 			$this->redirect($this->referer());
 		}
 		
-		$horseIns = ClassRegistry::init('Horse');
+		
 		
         //race details and specials
 		$race = $this->Result->Race->getRaceResults($raceId);

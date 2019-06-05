@@ -59,6 +59,113 @@ class Result extends AppModel {
 
     //		              S  E  T  T  E  R  S    ------------->>>>>
 
+
+    /**
+        === NEW RESULTS SETTER ===>>>
+    */
+    public function saveAndTickets($data)
+    {
+        $horseModel  = ClassRegistry::init('Horse');
+        
+        //resetear todos los caballos a enable = 1
+        $horses = $horseModel->getRiders($data['Race']['id']);
+        
+        //guardo solo datos de los resultados root
+        $this->setAll($data['Result']);
+        
+        $horseModel->updateAll(
+            array('enable'   => 1),
+            array('Horse.id' => $horses)
+        );
+        
+        //retirados
+        if (isset($data['Retired'])) {
+            $horseModel->setRetired(array_keys($data['Retired']));
+        }
+        
+        //carrera ended y premios superf
+        $this->Race->setRaceEnded($data['Race']['id'],$data['Special']);
+
+        // !!
+        $this->ticketsCenters($data, $horses, $data['Race']['national']);
+    }
+
+    public function ticketsCenters($data, $horses)
+    {
+        $centerModel = ClassRegistry::init('Center');
+        $configModel = ClassRegistry::init('Config');
+        $ticketModel = ClassRegistry::init('Ticket');
+        $intervModel = ClassRegistry::init('Interval');
+        $horseModel  = ClassRegistry::init('Horse');
+        
+        $centers = $centerModel->find('list');
+        $isIntl  = ($data['Race']['national']==0);
+        $retired = (isset($data['Retired'])) ? array_keys($data['Retired']) : [];
+
+        // ==> SETEAR LOS PREMIOS [NAC-INTL] EN HORSES-TICKETS
+        $lastRiders = count($horses) - count($retired);
+
+        unset($centers[1]);
+
+        //patch
+        $centers = [5=>'Horses Online'];
+
+        foreach ($centers as $centerId => $centerName) {
+            //echo $centerName. ':<br>';
+            //use calculation functions
+            $currency    = $configModel->get_unit_value($centerId,$isIntl);
+            $intervals   = [];
+            //get center configs and intervals
+            if ( $data['Race']['national'] == 1 ) {
+                //intervals por default
+                $intervals = $intervModel->getByHtrack(
+                    $centerId, 
+                    $data['Race']['hipodrome'], 
+                    0);
+                //intervals by horses
+                if ( in_array( $lastRiders, [4, 5, 6] ) ) {
+                    $intervals = $intervModel->getByHtrack(
+                        $centerId, 
+                        $data['Race']['hipodrome'], 
+                        $lastRiders
+                    );
+                }
+            }
+
+            pr($intervals);
+
+            //envio intervalos
+            $horseModel->setAllPrizes($data['Result'], $currency, $isIntl, $intervals);
+            
+            //BUSCAR PREMIOS EN TICKETS
+            $prizesByTickets = $horseModel->getPrizeByTickets($horses);
+            //SETEAR LOS PREMIOS EN TICKETS
+            $ticketModel->setPrizes($prizesByTickets);
+            //BUSCAR PREMIOS ESPECIALES EN TICKETS
+            // => IF INTL!!
+            $topPrizes = array();
+            /*
+            if ( $isIntl ) {
+                $topPrizes = $topPrzIns->getByHcls($data['Center'],$hipodClass);
+            }
+            */
+            $specialsByTickets = $horseModel->getPrizeSpecialTickets($horses,
+                                                $data['Special'],$topPrizes);
+            
+            //SETEAR LOS PREMIOS ESPECIALES EN TICKETS
+            $ticketModel->setPrizes($specialsByTickets,$topPrizes);
+            
+            //AQUI PREMIO LOS ONLINE
+            $ticketModel->setOnlinePrizes($data['Race']['id'], $centerId);
+            
+            //die();
+            
+        }
+        pr($centers);
+        pr($data);
+        die();
+    }
+
     //nueva salvada desde root
     function setRootResults($data)
     {
