@@ -16,21 +16,27 @@ class HorsesTicket extends AppModel {
 
 	//main calculator of w-P-S
 	//will receive intervals
-	public function saveWinnersPrizes($raceId, $winners, $national = 0)
+	public function saveWinnersPrizes($raceId, $winners, $national = 0, $retires = [])
 	{
 		//SETS PRIZES
 		$this->_setPrizesWinners($winners, $national);
+		//SET RETIRES
+		if ( !empty($retires) ) {
+			$this->_setPrizesRetires($retires, $national);
+		}
+		
 		//SET LOSERS
-		$this->_setLosersWinners($winners);
-
+		$this->_setLosersWinners($winners);	
+		
 		// GET TOTALS BY TICKET
 		$horsesIds = [];
 		foreach ($winners as $winner) {
 			array_push($horsesIds, $winner['horse_id']);
 		}
 
-		//
-		$prizesByTicket = $this->_getPrizeByTickets($horsesIds);
+		$allHorses = array_merge($horsesIds, $retires);
+		//pr($allHorses);
+		$prizesByTicket = $this->_getPrizeByTickets($allHorses);
 		//pr($prizesByTicket);
 		
 		// prize setter method
@@ -421,6 +427,20 @@ class HorsesTicket extends AppModel {
 			[
 				'horse_id'     => $winners[2]['horse_id'], 
 				'play_type_id' => 3	
+			]
+		);
+	}
+
+	//
+	private function _setPrizesRetires($retires, $national)
+	{
+		$this->updateAll(
+			[
+				'prize' => '(`units` * 1)',
+				'horses_tickets_status_id' => 4
+			],
+			[
+				'horse_id' => $retires
 			]
 		);
 	}

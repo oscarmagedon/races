@@ -127,9 +127,9 @@ class ResultsController extends AppController {
             $horseTksMod->saveWinnersPrizes(
                 $this->data['Race']['id'], 
                 $this->data['Result'],
-                $this->data['Race']['national']
+                $this->data['Race']['national'],
+                array_keys($this->data['Retired'])
             );
-            
             
             if ($this->data['Race']['national'] == 1) {
 

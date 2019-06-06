@@ -91,7 +91,19 @@ class Proresult extends Apidata {
 
 		$resultLog['Results'] = $this->_getHorsesInfo($raceId,$resultLog['Data']['Results']);
 
-		$resultLog['Saved']   = $hrsTksMod->saveWinnersPrizes($raceId, $resultLog['Results']['Results']);
+		//retired
+		$retires = $horseMod->find('list', [
+						'conditions' => [
+							'race_id' => $raceId,
+							'enable'  => 0
+						]
+					]);
+
+		$resultLog['Saved']   = $hrsTksMod->saveWinnersPrizes(
+									$raceId, 
+									$resultLog['Results']['Results'],
+									0,
+									array_keys($retires));
 		
 		//pr($resultLog);
 		//die();
